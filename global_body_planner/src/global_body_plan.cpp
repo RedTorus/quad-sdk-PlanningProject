@@ -110,9 +110,15 @@ void GlobalBodyPlan::convertToMsg(
     quad_msgs::RobotPlan &discrete_robot_plan_msg) {
   if (getSize() <= 0) return;
 
+  double z_offset = 0.1;//Height offset for visualization purposes
+
   // Loop through the interpolated body plan and add to message
   for (int i = 0; i < body_plan_.size(); ++i) {
-    addStateAndGRFToMsg(t_plan_[i], i, body_plan_[i], grf_plan_[i],
+    FullState modified_state = body_plan_[i];
+    if (modified_state.pos[2] > 0.2) {
+      modified_state.pos[2] -= z_offset;
+    }
+    addStateAndGRFToMsg(t_plan_[i], i, modified_state, grf_plan_[i],
                         primitive_id_plan_[i], robot_plan_msg);
   }
 
@@ -121,6 +127,11 @@ void GlobalBodyPlan::convertToMsg(
     // Discrete states don't need roll, yaw, or timing data, set to zero
     FullState full_discrete_state =
         stateToFullState(state_sequence_[i], 0, 0, 0, 0, 0, 0);
+
+    if (full_discrete_state.pos[2] > 0.2) {
+      full_discrete_state.pos[2] -= z_offset;
+    }
+
     addStateAndGRFToMsg(0.0, 0, full_discrete_state, grf_plan_[i],
                         primitive_id_plan_[i], discrete_robot_plan_msg);
   }
