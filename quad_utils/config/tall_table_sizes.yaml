@@ -1,0 +1,24 @@
+table_top:
+  length: 0.72
+  width: 0.72
+  height: 0.29
+
+leg1:
+  length: 0.05
+  width: 0.05
+  height: 0.6
+
+leg2:
+  length: 0.05
+  width: 0.05
+  height: 0.6
+
+leg3:
+  length: 0.05
+  width: 0.05
+  height: 0.6
+
+leg4:
+  length: 0.05
+  width: 0.05
+  height: 0.6

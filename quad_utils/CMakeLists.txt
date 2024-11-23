@@ -14,6 +14,7 @@ endif()
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
   roscpp
+  rospack
   std_msgs
   nav_msgs
   sensor_msgs
@@ -22,23 +23,25 @@ find_package(catkin REQUIRED COMPONENTS
   grid_map_core
   grid_map_ros
   grid_map_pcl
+  gazebo_msgs
 )
 
-find_package(PythonLibs 2.7)
+find_package(PythonLibs 2.7 REQUIRED)
 find_package(Eigen3 REQUIRED)
 
 # We need to add the project source path to the CMake module path so that
 # the FindRBDL.cmake script can be found.
-LIST( APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR} )
+LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR})
 
 # Search for the RBDL include directory and library
-FIND_PACKAGE (RBDL COMPONENTS URDFREADER REQUIRED)
+FIND_PACKAGE(RBDL COMPONENTS URDFREADER REQUIRED)
 
+## Declare a catkin package
 catkin_package(
   INCLUDE_DIRS include ${PYTHON_INCLUDE_DIRS}
   LIBRARIES quad_utils
   CATKIN_DEPENDS roscpp std_msgs nav_msgs sensor_msgs geometry_msgs quad_msgs grid_map_core grid_map_ros grid_map_pcl
-	DEPENDS EIGEN3
+  DEPENDS EIGEN3
 )
 
 ###########
@@ -53,10 +56,9 @@ include_directories(
   ${EIGEN3_INCLUDE_DIRS}
   ${PYTHON_INCLUDE_DIRS}
 )
+include_directories(${RBDL_INCLUDE_DIR})
 
-# Add the include directory to the include paths
-INCLUDE_DIRECTORIES ( ${RBDL_INCLUDE_DIR} ${EIGEN3_INCLUDE_DIR})
-
+## Declare a C++ library
 add_library(quad_utils
   src/rviz_interface.cpp
   src/fast_terrain_map.cpp
@@ -67,26 +69,29 @@ add_library(quad_utils
   src/ros_utils.cpp
   src/quad_kd.cpp
   src/remote_heartbeat.cpp
+  src/apply_force.cpp
+  src/bounding_boxes.cpp
+  src/yaml_loader.cpp
+  src/collision_checker.cpp
 )
-add_dependencies(quad_utils ${quad_utils_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
-target_link_libraries(quad_utils)
-target_include_directories(quad_utils INTERFACE ${quad_utils_INCLUDE_DIRS})
 
-# And link the library against the executable
-TARGET_LINK_LIBRARIES ( quad_utils
-	${RBDL_LIBRARY}
-	${RBDL_URDFREADER_LIBRARY}
-	)
+## Link libraries to quad_utils
+target_link_libraries(quad_utils
+  ${catkin_LIBRARIES}
+  ${RBDL_LIBRARY}
+  ${RBDL_URDFREADER_LIBRARY}
+  yaml-cpp
+)
 
 ## Declare a C++ executable
-## With catkin_make all packages are built within a single CMake context
-## The recommended prefix ensures that target names across packages don't collide
 add_executable(rviz_interface_node src/rviz_interface_node.cpp)
 add_executable(terrain_map_publisher_node src/terrain_map_publisher_node.cpp)
 add_executable(trajectory_publisher_node src/trajectory_publisher_node.cpp)
 add_executable(mesh_to_grid_map_node src/mesh_to_grid_map_node.cpp)
 add_executable(remote_heartbeat_node src/remote_heartbeat_node.cpp)
-
+add_executable(apply_force_node src/apply_force_node.cpp)
+add_executable(test_bounding_boxes_node src/test_bounding_boxes.cpp)
+add_executable(test_collision_checker_node src/test_collision_checker.cpp)
 ## Specify libraries to link a library or executable target against
 target_link_libraries(rviz_interface_node
   quad_utils
@@ -113,6 +118,20 @@ target_link_libraries(remote_heartbeat_node
   ${catkin_LIBRARIES}
 )
 
+target_link_libraries(apply_force_node 
+  quad_utils
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(test_bounding_boxes_node
+  quad_utils
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(test_collision_checker_node
+  quad_utils
+  ${catkin_LIBRARIES}
+)
 #############
 ## Testing ##
 #############
@@ -127,3 +146,9 @@ catkin_add_gtest(quad_utils-test
   test/test_math_utils.cpp
   test/test_main.cpp)
 target_link_libraries(quad_utils-test quad_utils ${catkin_LIBRARIES} ${PYTHON_LIBRARIES})
+
+# Link RBDL libraries to quad_utils-test
+target_link_libraries(quad_utils-test
+  ${RBDL_LIBRARY}
+  ${RBDL_URDFREADER_LIBRARY}
+)

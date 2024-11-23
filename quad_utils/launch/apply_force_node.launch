@@ -1,0 +1,8 @@
+<launch>
+  <node name="apply_force" pkg="quad_utils" type="apply_force_node" output="screen">
+    <param name="force_x" value="1200.0" />
+    <param name="force_y" value="0.0" />
+    <param name="force_z" value="0.0" />
+    <param name="target_body" value="box::table_top" />
+  </node>
+</launch>

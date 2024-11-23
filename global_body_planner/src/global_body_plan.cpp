@@ -110,7 +110,7 @@ void GlobalBodyPlan::convertToMsg(
     quad_msgs::RobotPlan &discrete_robot_plan_msg) {
   if (getSize() <= 0) return;
 
-  double z_offset = 0.1;//Height offset for visualization purposes (m)
+  double z_offset = 0.0;//Height offset for visualization purposes (m)
 
   // Loop through the interpolated body plan and add to message
   for (int i = 0; i < body_plan_.size(); ++i) {
