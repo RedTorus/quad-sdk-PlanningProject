@@ -20,6 +20,11 @@
 #include <unordered_set>
 #include <vector>
 
+#include "quad_utils/collision_checker.h"
+#include "geometry_msgs/Point.h"
+#include "quad_utils/bounding_boxes.h"
+#include "yaml-cpp/yaml.h"
+
 // Uncomment to add visualization features
 // #define VISUALIZE_TREE
 // #define VISUALIZE_ALL_CANDIDATE_ACTIONS
@@ -791,6 +796,9 @@ bool refineFlight(const State &s, double &t_f,
  * @return Whether the Action is valid or not
  */
 bool isValidAction(const Action &a, const PlannerConfig &planner_config);
+
+extern std::unique_ptr<CollisionChecker> collision_checker; // Declare as a unique_ptr
+void initializeCollisionChecker(ros::NodeHandle& nh, const std::string& yaml_file_path);
 
 /**
  * @brief Check the State is valid or not in terms of traversability,
