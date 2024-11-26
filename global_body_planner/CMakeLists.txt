@@ -82,6 +82,9 @@ target_link_libraries(${PROJECT_NAME}_node
   ${PROJECT_NAME}
   ${catkin_LIBRARIES}
 )
+target_link_libraries(global_body_planner_node
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Testing ##

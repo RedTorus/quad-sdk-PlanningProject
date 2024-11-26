@@ -1,4 +1,6 @@
 #include "global_body_planner/planning_utils.h"
+#include <ros/package.h>
+
 namespace planning_utils {
 
 State fullStateToState(const FullState &full_state) {
@@ -861,6 +863,11 @@ bool isValidState(const State &s, const PlannerConfig &planner_config,
           s.pos.replicate(1, planner_config.num_collision_points);
 
   // Check each of the four corners of the robot
+  ros::NodeHandle nh;
+  std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/box_sizes.yaml";
+  BoundingBoxes bounding_boxes(nh, yaml_file_path);
+  CollisionChecker collision_checker(bounding_boxes);
+  ROS_INFO("s.pos: [%f, %f, %f]", s.pos[0], s.pos[1], s.pos[2]);
   for (int i = 0; i < planner_config.num_collision_points; i++) {
     Eigen::Vector3d collision_point = collision_points_world.col(i);
     if (!isInMap(collision_point, planner_config)) {
@@ -870,6 +877,18 @@ bool isValidState(const State &s, const PlannerConfig &planner_config,
 #endif
       return false;
     }
+
+      // Convert collision_point to geometry_msgs::Point
+    geometry_msgs::Point point_msg;
+    point_msg.x = collision_point.x();
+    point_msg.y = collision_point.y();
+    point_msg.z = collision_point.z();
+
+    // Check collision with obstacles using isInCollision
+    if (collision_checker.isInTransformedCollision2(point_msg, R_mat, s.pos)) {
+      ROS_WARN_STREAM("State in collision with obstacle!");
+      return false; // Invalid state due to collision
+          }
 
     double collision_clearance =
         getZRelToTerrain(collision_point, planner_config);
@@ -883,6 +902,7 @@ bool isValidState(const State &s, const PlannerConfig &planner_config,
       return false;
     }
   }
+
 
   // Initialize max_valid_z to infinity (ensures that update will overwrite it)
   max_valid_z = std::numeric_limits<double>::max();

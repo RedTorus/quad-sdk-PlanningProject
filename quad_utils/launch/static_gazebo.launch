@@ -16,7 +16,7 @@
   </include>
 
 
-   <param name="box_sdf" textfile="$(find underbrush_description)/sdf/table_short.sdf" /> 
+   <param name="box_sdf" textfile="$(find underbrush_description)/sdf/box.sdf" /> 
   
    <node name="spawn_box" pkg="gazebo_ros" type="spawn_model" args="-sdf -param box_sdf -model box -x 1.6 -y 0.0 -z 0.7" output="screen"/>    
   

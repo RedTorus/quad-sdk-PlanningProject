@@ -1,5 +1,6 @@
 #include "global_body_planner/global_body_plan.h"
 
+
 GlobalBodyPlan::GlobalBodyPlan() {
   length_plan_.push_back(0);
   plan_status_ = UNSOLVED;

@@ -24,6 +24,8 @@ public:
 
     bool isInTransformedCollision(const geometry_msgs::Point& point,const Eigen::Matrix3d& R_mat) const;
 
+    bool isInTransformedCollision2(const geometry_msgs::Point& point,const Eigen::Matrix3d& R_mat, const Eigen::Vector3d& T) const;
+
 private:
     const BoundingBoxes& bounding_boxes_; // Reference to the bounding boxes object
 };

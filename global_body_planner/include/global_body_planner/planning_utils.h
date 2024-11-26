@@ -19,6 +19,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <quad_utils/collision_checker.h>
+
 
 // Uncomment to add visualization features
 // #define VISUALIZE_TREE
@@ -37,6 +39,7 @@ struct PlannerConfig {
   // Declare the terrain map object
   FastTerrainMap terrain;              // Terrain in FastTerrainMap format
   grid_map::GridMap terrain_grid_map;  // Terrain in grid_map format
+  std::shared_ptr<CollisionChecker> collision_checker; // Use CollisionChecker
 
   // Define kinematic constraint parameters
   double h_max;  // Maximum height of leg base, m

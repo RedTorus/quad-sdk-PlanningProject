@@ -16,6 +16,7 @@
 
 #include "global_body_planner/gbpl.h"
 #include "global_body_planner/global_body_plan.h"
+#include <quad_utils/collision_checker.h>
 
 using namespace planning_utils;
 
@@ -49,6 +50,8 @@ class GlobalBodyPlanner {
   void spin();
 
  private:
+
+  std::shared_ptr<CollisionChecker> collision_checker_; // Use this instead
   /**
    * @brief Callback function to handle new terrain map data
    * @param[in] msg the message contining map data

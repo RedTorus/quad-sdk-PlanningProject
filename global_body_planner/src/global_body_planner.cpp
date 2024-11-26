@@ -1,4 +1,5 @@
 #include "global_body_planner/global_body_planner.h"
+#include <ros/package.h>
 
 using namespace planning_utils;
 
@@ -57,6 +58,14 @@ GlobalBodyPlanner::GlobalBodyPlanner(ros::NodeHandle nh) {
     planner_config_.h_min = 0;
     planner_config_.h_max = 0.5;
   }
+
+ // Initialize BoundingBoxes with YAML file path
+  std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";
+  auto bounding_boxes = std::make_shared<BoundingBoxes>(nh_, yaml_file_path);
+  collision_checker_ = std::make_shared<CollisionChecker>(*bounding_boxes);
+
+
+
 
   // Fill in the goal state information
   goal_state_vec.resize(12, 0);
@@ -307,6 +316,8 @@ bool GlobalBodyPlanner::callPlanner() {
               << " s" << std::endl;
     std::cout << std::endl;
   }
+
+  return true;
 }
 
 void GlobalBodyPlanner::waitForData() {
