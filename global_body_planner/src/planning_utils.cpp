@@ -885,7 +885,7 @@ bool isValidState(const State &s, const PlannerConfig &planner_config,
     point_msg.z = collision_point.z();
 
     // Check collision with obstacles using isInCollision
-    if (collision_checker.isInTransformedCollision2(point_msg, R_mat, s.pos)) {
+    if (collision_checker.isInCollision(point_msg)) {
       ROS_WARN_STREAM("State in collision with obstacle!");
       return false; // Invalid state due to collision
           }
