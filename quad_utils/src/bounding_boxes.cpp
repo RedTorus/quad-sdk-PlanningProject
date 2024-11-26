@@ -27,7 +27,7 @@ void BoundingBoxes::updateBoundingBoxes() {
 }
 
 BoundingBox BoundingBoxes::computeBoundingBox(const gazebo_msgs::LinkState& link_state, const LinkSize& size) {
-    const auto& position = link_sstate.pose.position;
+    const auto& position = link_state.pose.position;
 
     BoundingBox bbox;
     bbox.min_x = position.x - size.length / 2.0;
