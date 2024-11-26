@@ -3,6 +3,7 @@
 #include <ros/package.h>
 #include <vector>
 #include <cmath> // For std::fabs
+#include <unordered_map>
 
 bool isBoundingBoxChanged(const BoundingBox& current, const BoundingBox& previous) {
     const double tolerance = 1e-3; // Small threshold for floating-point comparison
@@ -18,8 +19,18 @@ int main(int argc, char** argv) {
     ros::init(argc, argv, "test_bounding_boxes_node");
     ros::NodeHandle nh;
 
-    // Load the YAML file path
-    std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/tall_table_sizes.yaml";
+    // Determine which YAML file to use based on the argument
+    std::string table_type = "short"; // Default to short
+    if (argc > 1) {
+        table_type = argv[1];
+    }
+
+    std::string yaml_file_path;
+    if (table_type == "tall") {
+        yaml_file_path = ros::package::getPath("quad_utils") + "/config/tall_table_sizes.yaml";
+    } else {
+        yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";
+    }
 
     // Initialize the BoundingBoxes class
     BoundingBoxes bounding_boxes(nh, yaml_file_path);
@@ -35,29 +46,21 @@ int main(int argc, char** argv) {
         // Get the current bounding boxes
         auto current_bounding_boxes = bounding_boxes.getBoundingBoxes();
 
-        // Check if any bounding box has changed
-        bool has_moved = false;
-        for (const auto& [link_name, current_bbox] : current_bounding_boxes) {
-            if (previous_bounding_boxes.find(link_name) == previous_bounding_boxes.end() ||
-                isBoundingBoxChanged(current_bbox, previous_bounding_boxes[link_name])) {
-                has_moved = true;
-                break;
-            }
-        }
+        // Compare current and previous bounding boxes
+        for (const auto& pair : current_bounding_boxes) {
+            const std::string& name = pair.first;
+            const BoundingBox& current = pair.second;
 
-        // Print only if bounding boxes have moved
-        if (has_moved) {
-            ROS_INFO("Bounding boxes updated:");
-            for (const auto& [link_name, bbox] : current_bounding_boxes) {
-                ROS_INFO_STREAM(link_name << ": "
-                                          << "min_x=" << bbox.min_x << ", max_x=" << bbox.max_x
-                                          << ", min_y=" << bbox.min_y << ", max_y=" << bbox.max_y
-                                          << ", min_z=" << bbox.min_z << ", max_z=" << bbox.max_z);
+            if (previous_bounding_boxes.find(name) != previous_bounding_boxes.end()) {
+                const BoundingBox& previous = previous_bounding_boxes[name];
+                if (isBoundingBoxChanged(current, previous)) {
+                    ROS_INFO("Bounding box for %s has changed.", name.c_str());
+                }
             }
-        }
 
-        // Update previous bounding boxes
-        previous_bounding_boxes = current_bounding_boxes;
+            // Update the previous bounding box
+            previous_bounding_boxes[name] = current;
+        }
 
         rate.sleep();
     }

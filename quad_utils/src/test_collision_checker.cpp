@@ -8,8 +8,18 @@ int main(int argc, char** argv) {
     ros::init(argc, argv, "test_collision_checker_node");
     ros::NodeHandle nh;
 
-    // Load the YAML file path
-    std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/tall_table_sizes.yaml";
+    // Determine which YAML file to use based on the argument
+    std::string table_type = "short"; // Default to short
+    if (argc > 1) {
+        table_type = argv[1];
+    }
+
+    std::string yaml_file_path;
+    if (table_type == "tall") {
+        yaml_file_path = ros::package::getPath("quad_utils") + "/config/tall_table_sizes.yaml";
+    } else {
+        yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";
+    }
 
     // Initialize the BoundingBoxes class
     BoundingBoxes bounding_boxes(nh, yaml_file_path);
