@@ -15,6 +15,8 @@ bool CollisionChecker::isInCollision(const geometry_msgs::Point& point) const {
             point.z >= box.min_z && point.z <= box.max_z) {
             ROS_WARN_STREAM("Collision detected with link: " << link_name);
             return true; // Point is inside a bounding box
+        } else {
+            ROS_INFO_STREAM("No collision detected with link: " << link_name);
         }
     }
 
