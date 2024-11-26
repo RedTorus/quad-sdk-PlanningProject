@@ -45,7 +45,7 @@ const std::unordered_map<std::string, BoundingBox>& BoundingBoxes::getBoundingBo
 }
 
 void BoundingBoxes::loadLinkSizes(const std::string& yaml_file) {
-    YAML::Node config = YAML::LoadFile(yaml_file);
+    YAML::Node config = YAML::LoadFile(yaml_file); // Load the YAML file
     for (const auto& node : config) {
         LinkSize link_size;
         link_size.link_name = node.first.as<std::string>();
