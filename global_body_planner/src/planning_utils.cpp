@@ -1011,11 +1011,14 @@ namespace planning_utils
       collision_pt.x = collision_point.x();
       collision_pt.y = collision_point.y();
       collision_pt.z = collision_point.z();
-      std::cout << "collision_pt: " << collision_pt.x << " " << collision_pt.y << " " << collision_pt.z << std::endl;
+      //std::cout << "collision_pt: " << collision_pt.x << " " << collision_pt.y << " " << collision_pt.z << std::endl;
 
       if (collision_checker->isInCollision(collision_pt)) { // Use the pointer
         return false;
       }
+     /* if (collision_checker->isInTransformedCollision(collision_pt, R_mat)){
+        return false;
+     } */
     }
 
     // Initialize max_valid_z to infinity (ensures that update will overwrite it)

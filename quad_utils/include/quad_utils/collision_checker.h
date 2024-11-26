@@ -5,6 +5,7 @@
 #include <geometry_msgs/Point.h>
 #include <unordered_map>
 #include <string>
+#include <Eigen/Dense>
 
 class CollisionChecker {
 public:
@@ -20,6 +21,8 @@ public:
      * @return True if the point is within any bounding box, otherwise false.
      */
     bool isInCollision(const geometry_msgs::Point& point) const;
+
+    bool isInTransformedCollision(const geometry_msgs::Point& point,const Eigen::Matrix3d& R_mat) const;
 
 private:
     const BoundingBoxes& bounding_boxes_; // Reference to the bounding boxes object
