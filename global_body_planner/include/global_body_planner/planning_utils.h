@@ -88,6 +88,8 @@ struct PlannerConfig {
   Eigen::Matrix<double, 3, num_reachability_points>
       reachability_points_body;  // Positions of reachability points in thebody
                                  // frame
+  
+  // 3x5 matrix of collision points in the body frame
   Eigen::Matrix<double, 3, num_collision_points>
       collision_points_body;  // Positions of collision points in the bodyframe
 
