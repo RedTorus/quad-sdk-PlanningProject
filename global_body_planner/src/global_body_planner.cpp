@@ -60,9 +60,6 @@ GlobalBodyPlanner::GlobalBodyPlanner(ros::NodeHandle nh) {
   }
 
  // Initialize BoundingBoxes with YAML file path
-  std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";
-  auto bounding_boxes = std::make_shared<BoundingBoxes>(nh_, yaml_file_path);
-  collision_checker_ = std::make_shared<CollisionChecker>(*bounding_boxes);
 
 
 

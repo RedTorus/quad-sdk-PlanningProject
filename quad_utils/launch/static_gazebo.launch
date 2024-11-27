@@ -5,7 +5,7 @@
   <arg name="live_plot"       default="false"/>
   <arg name="world"           default="flat"/>
   <arg name="robot_type"      default="spirit_rotors"/>
-
+  
   <include file="$(find quad_utils)/launch/quad_gazebo.launch" >
     <arg name="gui"             value="$(arg gui)" />
     <arg name="paused"          value="$(arg paused)" />
@@ -14,9 +14,14 @@
     <arg name="world"           value="$(arg world)" />
     <arg name="robot_type"      value="$(arg robot_type)" />
   </include>
+  <!-- table_short.sdf -->
+    
+   <param name="box_sdf" textfile="$(find underbrush_description)/sdf/table_longshort.sdf" /> 
 
-
-   <param name="box_sdf" textfile="$(find underbrush_description)/sdf/table_short.sdf" /> 
+    <!-- Publisher Node -->
+  <node name="obstacle_sdf_name_publisher" pkg="quad_utils" type="obstacle_sdf_name_publisher" output="screen">
+    <param name="box_sdf" value="$(find underbrush_description)/sdf/table_short.sdf" />
+  </node>
   
    <node name="spawn_box" pkg="gazebo_ros" type="spawn_model" args="-sdf -param box_sdf -model box -x 1.6 -y 0.0 -z 0.7" output="screen"/>    
   

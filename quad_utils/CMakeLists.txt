@@ -74,6 +74,7 @@ add_library(quad_utils
   src/yaml_loader.cpp
   src/collision_checker.cpp
   src/obstacle_publisher.cpp
+  src/global_variables.cpp
 )
 
 ## Link libraries to quad_utils
