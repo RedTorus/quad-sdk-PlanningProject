@@ -7,11 +7,12 @@ CollisionChecker::CollisionChecker(const BoundingBoxes& bounding_boxes)
 bool CollisionChecker::isInCollision(const geometry_msgs::Point& point) const {
     // Get the latest bounding boxes
     const auto& boxes = bounding_boxes_.getBoundingBoxes();
-
+    //ROS_INFO("CCHECKER point: [%f, %f, %f]", point.x, point.y, point.z);
+    //ROS_INFO("CCHECKER boxes size: %d", boxes.size());
     // Check if the point is within any bounding box
     for (const auto& [link_name, box] : boxes) {
-        if (
-            point.x >= box.min_x - 0.8 && point.x <= box.max_x + 0.8 ) {
+        //ROS_INFO("box.min_x: %f box.max_x: %f box.min_y: %f box.max_y: %f", box.min_x, box.max_x, box.min_y, box.max_y);	
+        if (point.x >= box.min_x && point.x <= box.max_x && point.y >= box.min_y && point.y <= box.max_y ) {
             ROS_WARN_STREAM("Collision detected with link: " << link_name);
             return true; // Point is inside a bounding box
         }

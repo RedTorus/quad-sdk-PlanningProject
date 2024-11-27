@@ -5,6 +5,7 @@ BoundingBoxes::BoundingBoxes(ros::NodeHandle& nh, const std::string& yaml_file)
     : nh_(nh) {
     link_state_client_ = nh_.serviceClient<gazebo_msgs::GetLinkState>("/gazebo/get_link_state");
     loadLinkSizes(yaml_file);
+    updateBoundingBoxes();
 }
 
 void BoundingBoxes::updateBoundingBoxes() {

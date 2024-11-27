@@ -17,3 +17,4 @@ global_body_planner:
   t_s_max: 0.25                           # Maximum stance time, s
   dz0_min: 1.0                            # Minimum vertical velocity impulse, m/s
   dz0_max: 2.0                            # Maximum vertical velocity impulse, m/s
+  enable_leaping: false

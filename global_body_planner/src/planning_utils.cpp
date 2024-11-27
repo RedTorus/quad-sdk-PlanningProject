@@ -866,8 +866,10 @@ bool isValidState(const State &s, const PlannerConfig &planner_config,
   ros::NodeHandle nh;
   std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/box_sizes.yaml";
   BoundingBoxes bounding_boxes(nh, yaml_file_path);
+  std::unordered_map<std::string, BoundingBox> BB = bounding_boxes.getBoundingBoxes();
+  //ROS_INFO("PUTILS bounding_boxes: %d", BB.size());
   CollisionChecker collision_checker(bounding_boxes);
-  ROS_INFO("s.pos: [%f, %f, %f]", s.pos[0], s.pos[1], s.pos[2]);
+  //ROS_INFO("s.pos: [%f, %f, %f]", s.pos[0], s.pos[1], s.pos[2]);
   for (int i = 0; i < planner_config.num_collision_points; i++) {
     Eigen::Vector3d collision_point = collision_points_world.col(i);
     if (!isInMap(collision_point, planner_config)) {
@@ -879,6 +881,7 @@ bool isValidState(const State &s, const PlannerConfig &planner_config,
     }
 
       // Convert collision_point to geometry_msgs::Point
+    //ROS_INFO("PUTILS collision_point: [%f, %f, %f]", collision_point.x(), collision_point.y(), collision_point.z());
     geometry_msgs::Point point_msg;
     point_msg.x = collision_point.x();
     point_msg.y = collision_point.y();
