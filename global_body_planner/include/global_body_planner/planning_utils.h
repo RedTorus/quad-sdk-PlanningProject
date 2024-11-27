@@ -5,10 +5,11 @@
 #include <quad_utils/fast_terrain_map.h>
 #include <quad_utils/math_utils.h>
 #include <quad_utils/ros_utils.h>
+#include <quad_utils/collision_checker.h>
+#include <quad_utils/bounding_boxes.h>
 #include <ros/ros.h>
 #include <unistd.h>
 #include <visualization_msgs/MarkerArray.h>
-
 #include <algorithm>
 #include <chrono>
 #include <eigen3/Eigen/Eigen>
@@ -19,7 +20,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <quad_utils/collision_checker.h>
+//#include <quad_utils/collision_checker.h>
+
 
 
 // Uncomment to add visualization features
@@ -39,7 +41,7 @@ struct PlannerConfig {
   // Declare the terrain map object
   FastTerrainMap terrain;              // Terrain in FastTerrainMap format
   grid_map::GridMap terrain_grid_map;  // Terrain in grid_map format
-  std::shared_ptr<CollisionChecker> collision_checker; // Use CollisionChecker
+  
 
   // Define kinematic constraint parameters
   double h_max;  // Maximum height of leg base, m
@@ -88,7 +90,10 @@ struct PlannerConfig {
                                  // frame
   Eigen::Matrix<double, 3, num_collision_points>
       collision_points_body;  // Positions of collision points in the bodyframe
-
+  std::string yaml;
+  BoundingBoxes bounding_boxes;
+  std::unordered_map<std::string, BoundingBox> BB;
+  CollisionChecker collision_checker;
   /**
    * Load the vector of reachability test points and collision test
    * points in robot frame
@@ -145,6 +150,8 @@ struct PlannerConfig {
                              num_leap_samples);
     quad_utils::loadROSParam(nh, "/global_body_planner/max_planning_time",
                              max_planning_time);
+
+    quad_utils::loadROSParam(nh, "/yaml", yaml);
 
     // Load the scalar parameters into Eigen vectors
     loadEigenVectorsFromParams();

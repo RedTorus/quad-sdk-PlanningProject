@@ -1,5 +1,7 @@
 #include "global_body_planner/global_body_planner.h"
 #include <ros/package.h>
+#include <quad_utils/collision_checker.h>
+#include <quad_utils/bounding_boxes.h>
 
 using namespace planning_utils;
 
@@ -51,6 +53,10 @@ GlobalBodyPlanner::GlobalBodyPlanner(ros::NodeHandle nh) {
   // Load planner config
   bool enable_leaping;
   planner_config_.loadParamsFromServer(nh);
+  planner_config_.bounding_boxes = BoundingBoxes(nh_, planner_config_.yaml);
+  planner_config_.BB = planner_config_.bounding_boxes.getBoundingBoxes();
+  planner_config_.collision_checker = CollisionChecker(planner_config_.BB);
+  //////////////////////////////////////////////
   nh_.param<bool>("global_body_planner/enable_leaping", enable_leaping, true);
   if (!enable_leaping) {
     planner_config_.enable_leaping = false;

@@ -28,6 +28,7 @@ struct BoundingBox {
 // Class for managing bounding boxes
 class BoundingBoxes {
 public:
+    BoundingBoxes() = default;
     BoundingBoxes(ros::NodeHandle& nh, const std::string& yaml_file);
 
     void updateBoundingBoxes();

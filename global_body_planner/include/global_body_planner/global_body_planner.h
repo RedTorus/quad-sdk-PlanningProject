@@ -16,6 +16,7 @@
 
 #include "global_body_planner/gbpl.h"
 #include "global_body_planner/global_body_plan.h"
+#include <quad_utils/bounding_boxes.h>
 #include <quad_utils/collision_checker.h>
 
 using namespace planning_utils;

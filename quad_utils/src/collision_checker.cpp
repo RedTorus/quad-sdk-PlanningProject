@@ -1,6 +1,7 @@
 #include <quad_utils/collision_checker.h>
 #include <ros/ros.h> // For logging
 
+
 CollisionChecker::CollisionChecker(const BoundingBoxes& bounding_boxes)
     : bounding_boxes_(bounding_boxes) {}
 

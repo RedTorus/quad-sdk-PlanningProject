@@ -19,7 +19,8 @@ std::string BoxSdfPublisher::determineMessage(const std::string& box_sdf) {
         yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";//"/config/box_sizes.yaml";
     } else if (box_sdf.find("table_tall.sdf") != std::string::npos) {
         yaml_file_path = ros::package::getPath("quad_utils") + "/config/tall_table_sizes.yaml";//"/config/box_sizes.yaml";
-
+    } else if (box_sdf.find("table_longshort.sdf") != std::string::npos) {
+        yaml_file_path = ros::package::getPath("quad_utils") + "/config/longshort_table_sizes.yaml";//"/config/box_sizes.yaml";
     } else {
         yaml_file_path = ros::package::getPath("quad_utils") + "/config/box_sizes.yaml";//"/config/box_sizes.yaml";
     }
@@ -32,11 +33,14 @@ void BoxSdfPublisher::run() {
     ros::Rate loop_rate(1); // 1 Hz
     std_msgs::String msg;
     msg.data = determineMessage(box_sdf_);
+    std::string param_name = "/yaml";
+    std::string param_val = msg.data;
+    ros::param::set(param_name, param_val);
 
-    while (ros::ok()) {
+    /* while (ros::ok()) {
         sdf_publisher_.publish(msg);
         ROS_INFO("Published: %s", msg.data.c_str());
         ros::spinOnce();
         loop_rate.sleep();
-    }
+    } */
 }

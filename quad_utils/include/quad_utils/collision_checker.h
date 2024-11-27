@@ -13,6 +13,7 @@ public:
      * Constructor
      * @param bounding_boxes Reference to the BoundingBoxes object.
      */
+    CollisionChecker() = default;
     CollisionChecker(const BoundingBoxes& bounding_boxes);
 
     /**
