@@ -55,7 +55,10 @@ GlobalBodyPlanner::GlobalBodyPlanner(ros::NodeHandle nh) {
   planner_config_.loadParamsFromServer(nh);
   planner_config_.bounding_boxes = BoundingBoxes(nh_, planner_config_.yaml);
   planner_config_.BB = planner_config_.bounding_boxes.getBoundingBoxes();
-  planner_config_.collision_checker = CollisionChecker(planner_config_.BB);
+  //std::make_shared<BoundingBoxes>(nh_,planner_config_.yaml);
+  /* planner_config_.BB = planner_config_.bounding_boxes->getBoundingBoxes();
+  planner_config_.collision_checker = std::make_shared<CollisionChecker>(
+      planner_config_.bounding_boxes); */
   //////////////////////////////////////////////
   nh_.param<bool>("global_body_planner/enable_leaping", enable_leaping, true);
   if (!enable_leaping) {
