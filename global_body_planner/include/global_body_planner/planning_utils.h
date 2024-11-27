@@ -804,7 +804,7 @@ bool isValidAction(const Action &a, const PlannerConfig &planner_config);
  * @param[in] max_height Maximum height
  * @return Whether the State is valid or not
  */
-bool isValidState(const State &s, const PlannerConfig &planner_config,
+bool isValidState(State &s, const PlannerConfig &planner_config,
                   int phase);
 
 /**
@@ -816,7 +816,7 @@ bool isValidState(const State &s, const PlannerConfig &planner_config,
  * @param[in] max_height Maximum height
  * @return Whether the State is valid or not
  */
-bool isValidState(const State &s, const PlannerConfig &planner_config,
+bool isValidState(State &s, const PlannerConfig &planner_config,
                   int phase, double &max_height);
 
 // Trajectory validity checking

@@ -24,6 +24,7 @@ State PlannerClass::randomState(const PlannerConfig &planner_config) {
   getMapBounds(planner_config, x_min, x_max, y_min, y_max);
 
   State q;
+  double z_offset = 0.025;    // Offset for the point
 
   // Lognormal distribution sampling
   unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
@@ -31,7 +32,7 @@ State PlannerClass::randomState(const PlannerConfig &planner_config) {
 
   q.pos[0] = (x_max - x_min) * (double)rand() / RAND_MAX + x_min;
   q.pos[1] = (y_max - y_min) * (double)rand() / RAND_MAX + y_min;
-  q.pos[2] = planner_config.h_nom + getTerrainZFromState(q, planner_config);
+  q.pos[2] = planner_config.h_nom + getTerrainZFromState(q, planner_config) - z_offset;
 
   double phi = (2.0 * M_PI) * (double)rand() / RAND_MAX;
   double v = (*vel_distribution_)(generator);

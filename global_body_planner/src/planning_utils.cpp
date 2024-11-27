@@ -907,14 +907,14 @@ namespace planning_utils
     return true;
   }
 
-  bool isValidState(const State &s, const PlannerConfig &planner_config,
+  bool isValidState(State &s, const PlannerConfig &planner_config,
                     int phase)
   {
     double dummy_max_valid_z = 0;
     return isValidState(s, planner_config, phase, dummy_max_valid_z);
   }
 
-  bool isValidState(const State &s, const PlannerConfig &planner_config,
+  bool isValidState(State &s, const PlannerConfig &planner_config,
                     int phase, double &max_valid_z)
   {
     // Check elevation independent constraints first (out of range, velocity)
@@ -971,7 +971,7 @@ namespace planning_utils
 
   // Check each of the four corners of the robot
   ros::NodeHandle nh;
-  std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/box_sizes.yaml";
+  std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";
   BoundingBoxes bounding_boxes(nh, yaml_file_path);
   std::unordered_map<std::string, BoundingBox> BB = bounding_boxes.getBoundingBoxes();
   //ROS_INFO("PUTILS bounding_boxes: %d", BB.size());
@@ -1094,6 +1094,13 @@ namespace planning_utils
           return false;
         }
       }
+    }
+
+    // Check collision in z
+    double z = collision_checker.isInCollisionZ(s.pos[2], planner_config.h_min, planner_config.h_max);
+    if (z != 0){
+      s.pos[2] = z;
+      std::cout << "z modified: " << z << std::endl;
     }
 
     return true;
