@@ -60,3 +60,26 @@ void applyPeriodicForceToLegs(ros::NodeHandle& nh, const std::vector<std::string
         std::this_thread::sleep_for(std::chrono::milliseconds(static_cast<int>(interval_secs * 1000)));
     }
 }
+
+// Function to apply forces to move a box in a circular motion
+void applyCircularMotion(ros::NodeHandle& nh, const std::vector<std::string>& legs, double radius, double angular_velocity, double duration_secs, double interval_secs) {
+    double angle = 0.0;
+    ros::Rate rate(1.0 / interval_secs);
+    while (ros::ok()) {
+        double force_x = radius * angular_velocity * std::cos(angle);
+        double force_y = radius * angular_velocity * std::sin(angle);
+
+        for (const std::string& leg : legs) {
+            applyForceToModel(nh, leg, force_x, force_y, 0.0, duration_secs);
+        }
+
+        angle += angular_velocity * interval_secs;
+        if (angle >= 2 * M_PI) {
+            angle -= 2 * M_PI;
+        }
+
+        rate.sleep();
+    }
+}
+
+
