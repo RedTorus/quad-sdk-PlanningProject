@@ -16,10 +16,10 @@
   </include>
   <!-- table_short.sdf -->
     
-   <param name="box_sdf" textfile="$(find underbrush_description)/sdf/table_longshort.sdf" /> 
+   <param name="box_sdf" textfile="$(find underbrush_description)/sdf/table_short.sdf" /> 
 
     <!-- Publisher Node -->
-  <node name="obstacle_sdf_name_publisher" pkg="quad_utils" type="obstacle_sdf_name_publisher" output="screen">
+  <node name="obstacle_sdf_name_publisher" pkg="quad_utils" type="obstacle_sdf_name_publisher_node" output="screen">
     <param name="box_sdf" value="$(find underbrush_description)/sdf/table_short.sdf" />
   </node>
   

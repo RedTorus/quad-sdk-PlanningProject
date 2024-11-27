@@ -1,0 +1,24 @@
+table_top:
+  length: 4.0  # Adjusted length for the long-short table
+  width: 0.72
+  height: 0.15
+
+leg1:
+  length: 0.05
+  width: 0.05
+  height: 0.3
+
+leg2:
+  length: 0.05
+  width: 0.05
+  height: 0.3
+
+leg3:
+  length: 0.05
+  width: 0.05
+  height: 0.3
+
+leg4:
+  length: 0.05
+  width: 0.05
+  height: 0.3

@@ -75,6 +75,7 @@ add_library(quad_utils
   src/collision_checker.cpp
   src/obstacle_publisher.cpp
   src/global_variables.cpp
+  src/obstacle_sdf_name_publisher.cpp
 )
 
 ## Link libraries to quad_utils
@@ -95,6 +96,7 @@ add_executable(apply_force_node src/apply_force_node.cpp)
 add_executable(test_bounding_boxes_node src/test_bounding_boxes.cpp)
 add_executable(test_collision_checker_node src/test_collision_checker.cpp)
 add_executable(obstacle_publisher_node src/obstacle_publisher_node.cpp)
+add_executable(obstacle_sdf_name_publisher_node src/obstacle_sdf_name_publisher_node.cpp)
 ## Specify libraries to link a library or executable target against
 target_link_libraries(rviz_interface_node
   quad_utils
@@ -140,6 +142,11 @@ target_link_libraries(obstacle_publisher_node
   quad_utils
   ${catkin_LIBRARIES}
 )
+  target_link_libraries(obstacle_sdf_name_publisher_node
+  quad_utils
+  ${catkin_LIBRARIES}
+)
+
 
 #############
 ## Testing ##

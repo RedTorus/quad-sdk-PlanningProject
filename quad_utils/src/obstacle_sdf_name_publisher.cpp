@@ -1,5 +1,5 @@
-#include "obstacle_sdf_name_publisher.h"
-
+#include "quad_utils/obstacle_sdf_name_publisher.h"
+#include <ros/package.h>
 // Constructor implementation
 BoxSdfPublisher::BoxSdfPublisher(ros::NodeHandle& nh) {
     // Initialize the publisher
@@ -14,13 +14,14 @@ BoxSdfPublisher::BoxSdfPublisher(ros::NodeHandle& nh) {
 
 // Determine the message based on box_sdf
 std::string BoxSdfPublisher::determineMessage(const std::string& box_sdf) {
+    std::string yaml_file_path; // Declare it here
     if (box_sdf.find("table_short.sdf") != std::string::npos) {
-        std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";//"/config/box_sizes.yaml";
+        yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";//"/config/box_sizes.yaml";
     } else if (box_sdf.find("table_tall.sdf") != std::string::npos) {
-        std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/tall_table_sizes.yaml";//"/config/box_sizes.yaml";
+        yaml_file_path = ros::package::getPath("quad_utils") + "/config/tall_table_sizes.yaml";//"/config/box_sizes.yaml";
 
     } else {
-        std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/box_sizes.yaml";//"/config/box_sizes.yaml";
+        yaml_file_path = ros::package::getPath("quad_utils") + "/config/box_sizes.yaml";//"/config/box_sizes.yaml";
     }
 
     return yaml_file_path;
