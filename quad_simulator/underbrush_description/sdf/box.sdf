@@ -29,7 +29,7 @@ SOFTWARE.
 <sdf version='1.6'>
   <model name='block'>
     <link name='block'>
-      <pose frame=''>0 0 0.5 0 0 0</pose> <!-- Set z-coordinate to half the height to place it on the ground -->
+      <pose frame=''>0 0 0.36 0 0 0</pose> <!-- Set z-coordinate to half the height to place it on the ground -->
       <inertial>
         <mass>200</mass>
         <inertia>
@@ -40,14 +40,14 @@ SOFTWARE.
           <iyz>0</iyz>
           <izz>8.235</izz>
         </inertia>
-        <pose frame=''>0 0 0.5 0 0 0</pose> <!-- Set z-coordinate to half the height to place it on the ground -->
+        <pose frame=''>0 0 0.36 0 0 0</pose> <!-- Set z-coordinate to half the height to place it on the ground -->
       </inertial>
       <gravity>1</gravity>
       <self_collide>0</self_collide>
       <kinematic>0</kinematic>
 
       <visual name='block_visual'>
-        <pose frame=''>0 0 0.5 0 0 0</pose> <!-- Set z-coordinate to half the height to place it on the ground -->
+        <pose frame=''>0 0 0.36 0 0 0</pose> <!-- Set z-coordinate to half the height to place it on the ground -->
         <geometry>
           <box>
             <size>0.72 0.72 0.72</size> <!-- Set height to 1 -->
@@ -64,7 +64,7 @@ SOFTWARE.
       </visual>
       <collision name='block_collision'>
         <laser_retro>0</laser_retro>
-        <pose frame=''>0 0 0.5 0 0 0</pose> <!-- Set z-coordinate to half the height to place it on the ground -->
+        <pose frame=''>0 0 0.36 0 0 0</pose> <!-- Set z-coordinate to half the height to place it on the ground -->
         <geometry>
           <box>
             <size>0.72 0.72 0.72</size> <!-- Set height to 1 -->

@@ -15,12 +15,17 @@ BoxSdfPublisher::BoxSdfPublisher(ros::NodeHandle& nh) {
 // Determine the message based on box_sdf
 std::string BoxSdfPublisher::determineMessage(const std::string& box_sdf) {
     std::string yaml_file_path; // Declare it here
+
     if (box_sdf.find("table_short.sdf") != std::string::npos) {
         yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";//"/config/box_sizes.yaml";
     } else if (box_sdf.find("table_tall.sdf") != std::string::npos) {
         yaml_file_path = ros::package::getPath("quad_utils") + "/config/tall_table_sizes.yaml";//"/config/box_sizes.yaml";
     } else if (box_sdf.find("table_longshort.sdf") != std::string::npos) {
         yaml_file_path = ros::package::getPath("quad_utils") + "/config/longshort_table_sizes.yaml";//"/config/box_sizes.yaml";
+    } else if (box_sdf.find("box.sdf") != std::string::npos) {
+        yaml_file_path = ros::package::getPath("quad_utils") + "/config/box_sizes.yaml";//"/config/box_sizes.yaml";
+    } else if (box_sdf.find("minibox.sdf") != std::string::npos) {
+        yaml_file_path = ros::package::getPath("quad_utils") + "/config/minibox_sizes.yaml";//"/config/box_sizes.yaml";
     } else {
         yaml_file_path = ros::package::getPath("quad_utils") + "/config/box_sizes.yaml";//"/config/box_sizes.yaml";
     }
@@ -30,11 +35,12 @@ std::string BoxSdfPublisher::determineMessage(const std::string& box_sdf) {
 
 // Run method to publish the message
 void BoxSdfPublisher::run() {
-    ros::Rate loop_rate(1); // 1 Hz
+    //ros::Rate loop_rate(0.0001); // 1 Hz
     std_msgs::String msg;
     msg.data = determineMessage(box_sdf_);
     std::string param_name = "/yaml";
     std::string param_val = msg.data;
+    //ROS_INFO("Setting param %s to %s", param_name.c_str(), param_val.c_str());
     ros::param::set(param_name, param_val);
 
     /* while (ros::ok()) {

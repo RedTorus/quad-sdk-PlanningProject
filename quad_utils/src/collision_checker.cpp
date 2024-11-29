@@ -9,6 +9,7 @@ bool CollisionChecker::isInCollision(const geometry_msgs::Point& point) const {
     // Get the latest bounding boxes
     const auto& boxes = bounding_boxes_.getBoundingBoxes();
     //ROS_INFO("CCHECKER point: [%f, %f, %f]", point.x, point.y, point.z);
+
     //ROS_INFO("CCHECKER boxes size: %d", boxes.size());
     // Check if the point is within any bounding box
     for (const auto& [link_name, box] : boxes) {

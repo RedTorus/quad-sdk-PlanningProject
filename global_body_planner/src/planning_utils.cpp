@@ -971,11 +971,11 @@ namespace planning_utils
 
   // Check each of the four corners of the robot
   ros::NodeHandle nh;
-  std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";//"/config/box_sizes.yaml";
+  /* std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";//"/config/box_sizes.yaml";
   BoundingBoxes bounding_boxes(nh, yaml_file_path);
   std::unordered_map<std::string, BoundingBox> BB = bounding_boxes.getBoundingBoxes();
   //ROS_INFO("PUTILS bounding_boxes: %d", BB.size());
-  CollisionChecker collision_checker(bounding_boxes);
+  CollisionChecker collision_checker(bounding_boxes); */
   //ROS_INFO("s.pos: [%f, %f, %f]", s.pos[0], s.pos[1], s.pos[2]);
   for (int i = 0; i < planner_config.num_collision_points; i++) {
     Eigen::Vector3d collision_point = collision_points_world.col(i);
@@ -995,7 +995,10 @@ namespace planning_utils
     point_msg.z = collision_point.z();
 
       // Check collision with obstacles using isInCollision
-      if (collision_checker.isInCollision(point_msg))
+    std::string yaml_name= planner_config.yaml;
+    //ROS_INFO("PUTILS yaml_name: %s", yaml_name.c_str());
+    //ROS_INFO("PUTILS bounding_boxes: %d", planner_config.BB.size());
+      if (planner_config.collision_checker->isInCollision(point_msg))
       {
         ROS_WARN_STREAM("State in collision with obstacle!");
         return false; // Invalid state due to collision
