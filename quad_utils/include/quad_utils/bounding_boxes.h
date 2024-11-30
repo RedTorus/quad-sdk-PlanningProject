@@ -6,6 +6,9 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <boost/geometry.hpp>
+#include <boost/geometry/index/rtree.hpp>
+#include <quad_msgs/BoundingBoxArray.h> // Include the custom message header
 
 // Define a structure for link sizes
 struct LinkSize {
@@ -23,16 +26,25 @@ struct BoundingBox {
     double max_y;
     double min_z;
     double max_z;
+    std::string link_name;
 };
+
+// Define types for Boost.Geometry
+namespace bg = boost::geometry;
+namespace bgi = boost::geometry::index;
+
+typedef bg::model::point<double, 3, bg::cs::cartesian> Point;
+typedef bg::model::box<Point> Box;
+typedef std::pair<Box, std::string> Value;
 
 // Class for managing bounding boxes
 class BoundingBoxes {
 public:
-    BoundingBoxes() = default;
     BoundingBoxes(ros::NodeHandle& nh, const std::string& yaml_file);
 
     void updateBoundingBoxes();
     const std::unordered_map<std::string, BoundingBox>& getBoundingBoxes() const;
+    void publishBoundingBoxes(); // Add method to publish bounding boxes
 
 private:
     BoundingBox computeBoundingBox(const gazebo_msgs::LinkState& link_state, const LinkSize& size);
@@ -40,8 +52,10 @@ private:
 
     ros::NodeHandle nh_;
     ros::ServiceClient link_state_client_;
+    ros::Publisher bbox_pub_; // ROS publisher for bounding boxes
     std::vector<LinkSize> link_sizes_;
     std::unordered_map<std::string, BoundingBox> bounding_boxes_;
+    bgi::rtree<Value, bgi::quadratic<16>> rtree_; // R-tree for bounding boxes
 };
 
 #endif // BOUNDING_BOXES_H

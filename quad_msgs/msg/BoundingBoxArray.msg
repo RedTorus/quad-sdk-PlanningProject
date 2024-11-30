@@ -1,0 +1,2 @@
+# BoundingBoxArray.msg
+BoundingBox[] boxes

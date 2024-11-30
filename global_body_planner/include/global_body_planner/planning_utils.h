@@ -90,9 +90,10 @@ struct PlannerConfig {
                                  // frame
   Eigen::Matrix<double, 3, num_collision_points>
       collision_points_body;  // Positions of collision points in the bodyframe
-  std::string yaml;
-  BoundingBoxes bounding_boxes;
-  std::unordered_map<std::string, BoundingBox> BB;
+  
+  // std::string yaml;
+  // BoundingBoxes bounding_boxes;
+  // std::unordered_map<std::string, BoundingBox> BB;
   
   std::shared_ptr<CollisionChecker> collision_checker;
   
@@ -153,7 +154,7 @@ struct PlannerConfig {
     quad_utils::loadROSParam(nh, "/global_body_planner/max_planning_time",
                              max_planning_time);
 
-    quad_utils::loadROSParam(nh, "/yaml", yaml);
+    // quad_utils::loadROSParam(nh, "/yaml", yaml);
 
     // Load the scalar parameters into Eigen vectors
     loadEigenVectorsFromParams();

@@ -994,15 +994,15 @@ namespace planning_utils
     point_msg.y = collision_point.y();
     point_msg.z = collision_point.z();
 
-      // Check collision with obstacles using isInCollision
-    std::string yaml_name= planner_config.yaml;
-    //ROS_INFO("PUTILS yaml_name: %s", yaml_name.c_str());
-    //ROS_INFO("PUTILS bounding_boxes: %d", planner_config.BB.size());
-      if (planner_config.collision_checker->isInCollision(point_msg))
-      {
-        ROS_WARN_STREAM("State in collision with obstacle!");
-        return false; // Invalid state due to collision
-      }
+    //   // Check collision with obstacles using isInCollision
+    // std::string yaml_name= planner_config.yaml;
+    // //ROS_INFO("PUTILS yaml_name: %s", yaml_name.c_str());
+    // //ROS_INFO("PUTILS bounding_boxes: %d", planner_config.BB.size());
+    //   if (planner_config.collision_checker->isInCollision(point_msg))
+    //   {
+    //     ROS_WARN_STREAM("State in collision with obstacle!");
+    //     return false; // Invalid state due to collision
+    //   }
 
       double collision_clearance =
           getZRelToTerrain(collision_point, planner_config);
