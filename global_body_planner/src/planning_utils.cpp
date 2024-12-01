@@ -971,6 +971,7 @@ namespace planning_utils
 
   // Check each of the four corners of the robot
   ros::NodeHandle nh;
+  CollisionChecker collision_checker(nh);
   /* std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";//"/config/box_sizes.yaml";
   BoundingBoxes bounding_boxes(nh, yaml_file_path);
   std::unordered_map<std::string, BoundingBox> BB = bounding_boxes.getBoundingBoxes();
@@ -998,11 +999,11 @@ namespace planning_utils
     // std::string yaml_name= planner_config.yaml;
     // //ROS_INFO("PUTILS yaml_name: %s", yaml_name.c_str());
     // //ROS_INFO("PUTILS bounding_boxes: %d", planner_config.BB.size());
-    //   if (planner_config.collision_checker->isInCollision(point_msg))
-    //   {
-    //     ROS_WARN_STREAM("State in collision with obstacle!");
-    //     return false; // Invalid state due to collision
-    //   }
+      if (collision_checker.isInCollision(point_msg))
+      {
+        ROS_WARN_STREAM("State in collision with obstacle!");
+        return false; // Invalid state due to collision
+      }
 
       double collision_clearance =
           getZRelToTerrain(collision_point, planner_config);

@@ -20,9 +20,6 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-//#include <quad_utils/collision_checker.h>
-
-
 
 // Uncomment to add visualization features
 // #define VISUALIZE_TREE

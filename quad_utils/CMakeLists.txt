@@ -24,11 +24,13 @@ find_package(catkin REQUIRED COMPONENTS
   grid_map_ros
   grid_map_pcl
   gazebo_msgs
+  gazebo_ros
 )
 
 find_package(PythonLibs 2.7 REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Threads REQUIRED)
+find_package(gazebo REQUIRED)
 
 # We need to add the project source path to the CMake module path so that
 # the FindRBDL.cmake script can be found.
@@ -42,7 +44,7 @@ catkin_package(
   INCLUDE_DIRS include ${PYTHON_INCLUDE_DIRS}
   LIBRARIES quad_utils
   CATKIN_DEPENDS roscpp std_msgs nav_msgs sensor_msgs geometry_msgs quad_msgs grid_map_core grid_map_ros grid_map_pcl
-  DEPENDS EIGEN3
+  DEPENDS gazebo Boost Eigen3
 )
 
 ## Set the C++ standard to C++17
@@ -60,8 +62,11 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
   ${EIGEN3_INCLUDE_DIRS}
   ${PYTHON_INCLUDE_DIRS}
+  ${GAZEBO_INCLUDE_DIRS}
 )
 include_directories(${RBDL_INCLUDE_DIR})
+
+# link_directories(${GAZEBO_LIBRARY_DIRS})
 
 ## Declare a C++ library
 add_library(quad_utils
@@ -84,6 +89,8 @@ add_library(quad_utils
   src/bbox_publish_node.cpp
 )
 
+# add_library(${PROJECT_NAME} SHARED src/bounding_boxes_plugin.cpp)
+
 ## Link libraries to quad_utils
 target_link_libraries(quad_utils
   ${catkin_LIBRARIES}
@@ -91,6 +98,8 @@ target_link_libraries(quad_utils
   ${RBDL_URDFREADER_LIBRARY}
   yaml-cpp
 )
+
+# target_link_libraries(${PROJECT_NAME} ${catkin_LIBRARIES} ${GAZEBO_LIBRARIES} ${Boost_LIBRARIES})
 
 ## Declare a C++ executable
 add_executable(rviz_interface_node src/rviz_interface_node.cpp)
@@ -161,6 +170,7 @@ target_link_libraries(bboxes_node
   ${CMAKE_THREAD_LIBS_INIT} # Link the pthread library
 )
 
+# add_dependencies(${PROJECT_NAME} ${catkin_EXPORTED_TARGETS})
 #############
 ## Testing ##
 #############

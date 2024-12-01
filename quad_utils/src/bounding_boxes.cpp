@@ -2,10 +2,10 @@
 #include <yaml-cpp/yaml.h>
 
 BoundingBoxes::BoundingBoxes(ros::NodeHandle& nh, const std::string& yaml_file) : nh_(nh) {
-    link_state_client_ = nh_.serviceClient<gazebo_msgs::GetLinkState>("/gazebo/get_link_state");
+    model_states_sub_ = nh_.subscribe("/gazebo/model_states", 10, &BoundingBoxes::modelStatesCallback, this);
     bbox_pub_ = nh_.advertise<quad_msgs::BoundingBoxArray>("bounding_boxes", 10); // Initialize the publisher
     loadLinkSizes(yaml_file);
-    updateBoundingBoxes();
+    // updateBoundingBoxes();
 }
 
 void BoundingBoxes::loadLinkSizes(const std::string& yaml_file) {
@@ -20,8 +20,8 @@ void BoundingBoxes::loadLinkSizes(const std::string& yaml_file) {
     }
 }
 
-BoundingBox BoundingBoxes::computeBoundingBox(const gazebo_msgs::LinkState& link_state, const LinkSize& size) {
-    const auto& position = link_state.pose.position;
+BoundingBox BoundingBoxes::computeBoundingBox(const geometry_msgs::Pose& pose, const LinkSize& size) {
+    const auto& position = pose.position;
 
     BoundingBox bbox;
     bbox.min_x = position.x - size.length / 2.0;
@@ -35,24 +35,47 @@ BoundingBox BoundingBoxes::computeBoundingBox(const gazebo_msgs::LinkState& link
     return bbox;
 }
 
-void BoundingBoxes::updateBoundingBoxes() {
-    for (const auto& link_size : link_sizes_) {
-        gazebo_msgs::GetLinkState link_state_srv;
-        link_state_srv.request.link_name = link_size.link_name;
-        link_state_srv.request.reference_frame = "world";
-        if (link_state_client_.call(link_state_srv)) {
-            if (link_state_srv.response.success) {
-                BoundingBox bbox = computeBoundingBox(link_state_srv.response.link_state, link_size);
-                bounding_boxes_[link_size.link_name] = bbox;
+// void BoundingBoxes::updateBoundingBoxes() {
+//     for (const auto& link_size : link_sizes_) {
+//         gazebo_msgs::GetLinkState link_state_srv;
+//         link_state_srv.request.link_name = link_size.link_name;
+//         link_state_srv.request.reference_frame = "world";
+//         if (link_state_client_.call(link_state_srv)) {
+//             if (link_state_srv.response.success) {
+//                 BoundingBox bbox = computeBoundingBox(link_state_srv.response.link_state, link_size);
+//                 bounding_boxes_[link_size.link_name] = bbox;
 
-                // Insert bounding box into the R-tree
-                Box box(Point(bbox.min_x, bbox.min_y, bbox.min_z), Point(bbox.max_x, bbox.max_y, bbox.max_z));
-                rtree_.insert(std::make_pair(box, bbox.link_name));
-            } else {
-                ROS_WARN("Failed to get link state for %s", link_size.link_name.c_str());
-            }
+//                 // Insert bounding box into the R-tree
+//                 Box box(Point(bbox.min_x, bbox.min_y, bbox.min_z), Point(bbox.max_x, bbox.max_y, bbox.max_z));
+//                 rtree_.insert(std::make_pair(box, bbox.link_name));
+//             } else {
+//                 ROS_WARN("Failed to get link state for %s", link_size.link_name.c_str());
+//             }
+//         } else {
+//             ROS_ERROR("Failed to call service /gazebo/get_link_state for %s", link_size.link_name.c_str());
+//         }
+//     }
+
+//     // Publish the bounding boxes after updating
+//     publishBoundingBoxes();
+// }
+
+void BoundingBoxes::modelStatesCallback(const gazebo_msgs::ModelStates::ConstPtr& msg) {
+    bounding_boxes_.clear();
+    rtree_.clear();
+
+    for (const auto& link_size : link_sizes_) {
+        auto it = std::find(msg->name.begin(), msg->name.end(), link_size.link_name);
+        if (it != msg->name.end()) {
+            size_t index = std::distance(msg->name.begin(), it);
+            BoundingBox bbox = computeBoundingBox(msg->pose[index], link_size);
+            bounding_boxes_[link_size.link_name] = bbox;
+
+            // Insert bounding box into the R-tree
+            Box box(Point(bbox.min_x, bbox.min_y, bbox.min_z), Point(bbox.max_x, bbox.max_y, bbox.max_z));
+            rtree_.insert(std::make_pair(box, bbox.link_name));
         } else {
-            ROS_ERROR("Failed to call service /gazebo/get_link_state for %s", link_size.link_name.c_str());
+            ROS_WARN("Failed to get model state for %s", link_size.link_name.c_str());
         }
     }
 

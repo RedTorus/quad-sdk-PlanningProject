@@ -6,15 +6,10 @@ int main(int argc, char** argv) {
     ros::init(argc, argv, "bboxes_node");
     ros::NodeHandle nh;
 
-    std::string yaml_file = ros::package::getPath("quad_utils") + "/config/box_sizes.yaml";
+    std::string yaml_file = ros::package::getPath("quad_utils") + "/config/minibox_sizes.yaml";
     BoundingBoxes bounding_boxes(nh, yaml_file);
 
-    ros::Rate rate(1.0); // Publish at 1 Hz
-    while (ros::ok()) {
-        bounding_boxes.updateBoundingBoxes();
-        ros::spinOnce();
-        rate.sleep();
-    }
+    ros::spin(); // Keep the node running to process callbacks
 
     return 0;
 }

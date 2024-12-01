@@ -1,4 +1,11 @@
-block:
+box1:
+  link_name: "box1::link"
   length: 0.5
+  width: 0.5
+  height: 0.5
+
+box2:
+  link_name: "box2::link"
+  length: 1.0
   width: 0.5
   height: 0.5

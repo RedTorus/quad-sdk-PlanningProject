@@ -41,33 +41,33 @@ int main(int argc, char** argv) {
     // Store previous bounding boxes for comparison
     std::unordered_map<std::string, BoundingBox> previous_bounding_boxes;
 
-    ros::Rate rate(0.5); // Check at 10 Hz
-    while (ros::ok()) {
-        // Update bounding boxes
-        bounding_boxes.updateBoundingBoxes();
+    // ros::Rate rate(0.5); // Check at 10 Hz
+    // while (ros::ok()) {
+    //     // Update bounding boxes
+    //     bounding_boxes.updateBoundingBoxes();
 
-        // Get the current bounding boxes
-        auto current_bounding_boxes = bounding_boxes.getBoundingBoxes();
+    //     // Get the current bounding boxes
+    //     auto current_bounding_boxes = bounding_boxes.getBoundingBoxes();
 
-        // Compare current and previous bounding boxes
-        for (const auto& pair : current_bounding_boxes) {
-            const std::string& name = pair.first;
-            const BoundingBox& current = pair.second;
-            ROS_INFO("Bounding box for %s: min_x=%f, max_x=%f, min_y=%f, max_y=%f, min_z=%f, max_z=%f",
-                     name.c_str(), current.min_x, current.max_x, current.min_y, current.max_y, current.min_z, current.max_z);
-            if (previous_bounding_boxes.find(name) != previous_bounding_boxes.end()) {
-                const BoundingBox& previous = previous_bounding_boxes[name];
-                if (isBoundingBoxChanged(current, previous)) {
-                    ROS_INFO("Bounding box for %s has changed.", name.c_str());
-                }
-            }
+    //     // Compare current and previous bounding boxes
+    //     for (const auto& pair : current_bounding_boxes) {
+    //         const std::string& name = pair.first;
+    //         const BoundingBox& current = pair.second;
+    //         ROS_INFO("Bounding box for %s: min_x=%f, max_x=%f, min_y=%f, max_y=%f, min_z=%f, max_z=%f",
+    //                  name.c_str(), current.min_x, current.max_x, current.min_y, current.max_y, current.min_z, current.max_z);
+    //         if (previous_bounding_boxes.find(name) != previous_bounding_boxes.end()) {
+    //             const BoundingBox& previous = previous_bounding_boxes[name];
+    //             if (isBoundingBoxChanged(current, previous)) {
+    //                 ROS_INFO("Bounding box for %s has changed.", name.c_str());
+    //             }
+    //         }
 
-            // Update the previous bounding box
-            previous_bounding_boxes[name] = current;
-        }
+    //         // Update the previous bounding box
+    //         previous_bounding_boxes[name] = current;
+    //     }
 
-        rate.sleep();
-    }
+    //     rate.sleep();
+    // }
 
     return 0;
 }

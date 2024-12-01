@@ -3,6 +3,7 @@
 
 #include <ros/ros.h>
 #include <gazebo_msgs/GetLinkState.h>
+#include <gazebo_msgs/ModelStates.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -42,16 +43,16 @@ class BoundingBoxes {
 public:
     BoundingBoxes(ros::NodeHandle& nh, const std::string& yaml_file);
 
-    void updateBoundingBoxes();
     const std::unordered_map<std::string, BoundingBox>& getBoundingBoxes() const;
     void publishBoundingBoxes(); // Add method to publish bounding boxes
 
 private:
-    BoundingBox computeBoundingBox(const gazebo_msgs::LinkState& link_state, const LinkSize& size);
+    void modelStatesCallback(const gazebo_msgs::ModelStates::ConstPtr& msg);
+    BoundingBox computeBoundingBox(const geometry_msgs::Pose& pose, const LinkSize& size);
     void loadLinkSizes(const std::string& yaml_file);
 
     ros::NodeHandle nh_;
-    ros::ServiceClient link_state_client_;
+    ros::Subscriber model_states_sub_;
     ros::Publisher bbox_pub_; // ROS publisher for bounding boxes
     std::vector<LinkSize> link_sizes_;
     std::unordered_map<std::string, BoundingBox> bounding_boxes_;

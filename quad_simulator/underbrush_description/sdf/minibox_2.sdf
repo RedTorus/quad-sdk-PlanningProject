@@ -1,5 +1,5 @@
 <sdf version='1.6'>
-  <model name='box1'>
+  <model name='box2'>
     <link name='link'>
       <pose frame=''>0 0 0.36 0 0 0</pose> <!-- Set z-coordinate to half the height to place it on the ground -->
       <inertial>

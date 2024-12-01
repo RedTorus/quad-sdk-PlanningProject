@@ -1,34 +1,24 @@
 #ifndef COLLISION_CHECKER_H
 #define COLLISION_CHECKER_H
 
-#include <quad_utils/bounding_boxes.h>
+#include <ros/ros.h>
 #include <geometry_msgs/Point.h>
+#include <quad_msgs/BoundingBoxArray.h>
 #include <unordered_map>
 #include <string>
-#include <Eigen/Dense>
+#include "quad_utils/bounding_boxes.h"
 
 class CollisionChecker {
 public:
-    /**
-     * Constructor
-     * @param bounding_boxes Reference to the BoundingBoxes object.
-     */
-    CollisionChecker() = default;
-    CollisionChecker(const BoundingBoxes& bounding_boxes);
+    CollisionChecker(ros::NodeHandle& nh);
 
-    /**
-     * Check if a given point is within any bounding box.
-     * @param point The point to check (robot's state position).
-     * @return True if the point is within any bounding box, otherwise false.
-     */
     bool isInCollision(const geometry_msgs::Point& point) const;
 
-    bool isInTransformedCollision(const geometry_msgs::Point& point,const Eigen::Matrix3d& R_mat) const;
-
-    bool isInTransformedCollision2(const geometry_msgs::Point& point,const Eigen::Matrix3d& R_mat, const Eigen::Vector3d& T) const;
-
 private:
-    const BoundingBoxes& bounding_boxes_; // Reference to the bounding boxes object
+    void boundingBoxesCallback(const quad_msgs::BoundingBoxArray::ConstPtr& msg);
+
+    ros::Subscriber bbox_sub_;
+    std::unordered_map<std::string, BoundingBox> bounding_boxes_;
 };
 
 #endif // COLLISION_CHECKER_H
