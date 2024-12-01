@@ -1007,6 +1007,8 @@ namespace planning_utils
         return false; // Invalid state due to collision
       }
 
+      ROS_INFO("Point coordinates: x = %f, y = %f, z = %f", point_msg.x, point_msg.y, point_msg.z);
+
       double collision_clearance =
           getZRelToTerrain(collision_point, planner_config);
 
