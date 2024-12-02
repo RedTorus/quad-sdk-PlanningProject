@@ -9,6 +9,7 @@ int main(int argc, char** argv) {
     std::string yaml_file = ros::package::getPath("quad_utils") + "/config/minibox_sizes.yaml";
     BoundingBoxes bounding_boxes(nh, yaml_file);
 
+    ROS_INFO("Bounding boxes node running");
     ros::spin(); // Keep the node running to process callbacks
 
     return 0;

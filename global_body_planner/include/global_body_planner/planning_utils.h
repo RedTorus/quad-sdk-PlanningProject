@@ -5,8 +5,6 @@
 #include <quad_utils/fast_terrain_map.h>
 #include <quad_utils/math_utils.h>
 #include <quad_utils/ros_utils.h>
-#include <quad_utils/collision_checker.h>
-#include <quad_utils/bounding_boxes.h>
 #include <ros/ros.h>
 #include <unistd.h>
 #include <visualization_msgs/MarkerArray.h>
@@ -20,6 +18,8 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <quad_utils/collision_checker.h>
+#include <quad_utils/bounding_boxes.h>
 
 // Uncomment to add visualization features
 // #define VISUALIZE_TREE

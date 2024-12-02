@@ -27,9 +27,9 @@
 
 
   <node name="spawn_box1" pkg="gazebo_ros" type="spawn_model"
-    args="-sdf -param box_sdf -model box1 -x 1.6 -y 0.0 -z 0.7" output="screen" />
+    args="-sdf -param box_sdf -model box1 -x 1.6 -y 0.0 -z 0" output="screen" />
   <node name="spawn_box2" pkg="gazebo_ros" type="spawn_model"
-    args="-sdf -param box_sdf_2 -model box2 -x 2.0 -y 1.0 -z 0.7" output="screen" />
+    args="-sdf -param box_sdf_2 -model box2 -x 2.0 -y 1.0 -z 0" output="screen" />
 
   <node name="bboxes_node" pkg="quad_utils" type="bboxes_node" output="screen" />
 

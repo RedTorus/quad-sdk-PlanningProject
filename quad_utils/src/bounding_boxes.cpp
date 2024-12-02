@@ -5,7 +5,8 @@ BoundingBoxes::BoundingBoxes(ros::NodeHandle& nh, const std::string& yaml_file) 
     model_states_sub_ = nh_.subscribe("/gazebo/model_states", 10, &BoundingBoxes::modelStatesCallback, this);
     bbox_pub_ = nh_.advertise<quad_msgs::BoundingBoxArray>("bounding_boxes", 10); // Initialize the publisher
     loadLinkSizes(yaml_file);
-    // updateBoundingBoxes();
+    ROS_INFO("BoundingBoxes initialized");
+
 }
 
 void BoundingBoxes::loadLinkSizes(const std::string& yaml_file) {
@@ -35,31 +36,6 @@ BoundingBox BoundingBoxes::computeBoundingBox(const geometry_msgs::Pose& pose, c
     return bbox;
 }
 
-// void BoundingBoxes::updateBoundingBoxes() {
-//     for (const auto& link_size : link_sizes_) {
-//         gazebo_msgs::GetLinkState link_state_srv;
-//         link_state_srv.request.link_name = link_size.link_name;
-//         link_state_srv.request.reference_frame = "world";
-//         if (link_state_client_.call(link_state_srv)) {
-//             if (link_state_srv.response.success) {
-//                 BoundingBox bbox = computeBoundingBox(link_state_srv.response.link_state, link_size);
-//                 bounding_boxes_[link_size.link_name] = bbox;
-
-//                 // Insert bounding box into the R-tree
-//                 Box box(Point(bbox.min_x, bbox.min_y, bbox.min_z), Point(bbox.max_x, bbox.max_y, bbox.max_z));
-//                 rtree_.insert(std::make_pair(box, bbox.link_name));
-//             } else {
-//                 ROS_WARN("Failed to get link state for %s", link_size.link_name.c_str());
-//             }
-//         } else {
-//             ROS_ERROR("Failed to call service /gazebo/get_link_state for %s", link_size.link_name.c_str());
-//         }
-//     }
-
-//     // Publish the bounding boxes after updating
-//     publishBoundingBoxes();
-// }
-
 void BoundingBoxes::modelStatesCallback(const gazebo_msgs::ModelStates::ConstPtr& msg) {
     bounding_boxes_.clear();
     rtree_.clear();
@@ -83,7 +59,7 @@ void BoundingBoxes::modelStatesCallback(const gazebo_msgs::ModelStates::ConstPtr
     publishBoundingBoxes();
 }
 
-const std::unordered_map<std::string, BoundingBox>& BoundingBoxes::getBoundingBoxes() const {
+const std::unordered_map<std::string, BoundingBox>& BoundingBoxes::getBoundingBoxes() {
     return bounding_boxes_;
 }
 

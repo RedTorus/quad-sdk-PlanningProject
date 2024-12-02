@@ -96,6 +96,7 @@ target_link_libraries(quad_utils
   ${catkin_LIBRARIES}
   ${RBDL_LIBRARY}
   ${RBDL_URDFREADER_LIBRARY}
+  ${CMAKE_THREAD_LIBS_INIT}
   yaml-cpp
 )
 
@@ -108,11 +109,11 @@ add_executable(trajectory_publisher_node src/trajectory_publisher_node.cpp)
 add_executable(mesh_to_grid_map_node src/mesh_to_grid_map_node.cpp)
 add_executable(remote_heartbeat_node src/remote_heartbeat_node.cpp)
 add_executable(apply_force_node src/apply_force_node.cpp)
-add_executable(test_bounding_boxes_node src/test_bounding_boxes.cpp)
 add_executable(test_collision_checker_node src/test_collision_checker.cpp)
 add_executable(obstacle_publisher_node src/obstacle_publisher_node.cpp)
 add_executable(obstacle_sdf_name_publisher_node src/obstacle_sdf_name_publisher_node.cpp)
 add_executable(bboxes_node src/bbox_publish_node.cpp)
+add_executable(test_bounding_boxes_node src/test_bounding_boxes.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(rviz_interface_node
@@ -150,16 +151,17 @@ target_link_libraries(test_bounding_boxes_node
   ${catkin_LIBRARIES}
 )
 
-target_link_libraries(test_collision_checker_node
-  quad_utils
-  ${catkin_LIBRARIES}
-)
-
 target_link_libraries(obstacle_publisher_node
   quad_utils
   ${catkin_LIBRARIES}
 )
-  target_link_libraries(obstacle_sdf_name_publisher_node
+
+target_link_libraries(obstacle_sdf_name_publisher_node
+  quad_utils
+  ${catkin_LIBRARIES}
+)
+
+target_link_libraries(test_collision_checker_node
   quad_utils
   ${catkin_LIBRARIES}
 )

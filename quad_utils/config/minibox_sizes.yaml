@@ -1,6 +1,6 @@
 box1:
   link_name: "box1::link"
-  length: 0.5
+  length: 1.0
   width: 0.5
   height: 0.5
 

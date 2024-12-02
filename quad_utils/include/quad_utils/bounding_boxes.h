@@ -43,7 +43,7 @@ class BoundingBoxes {
 public:
     BoundingBoxes(ros::NodeHandle& nh, const std::string& yaml_file);
 
-    const std::unordered_map<std::string, BoundingBox>& getBoundingBoxes() const;
+    const std::unordered_map<std::string, BoundingBox>& getBoundingBoxes();
     void publishBoundingBoxes(); // Add method to publish bounding boxes
 
 private:
