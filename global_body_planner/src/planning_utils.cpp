@@ -998,7 +998,7 @@ namespace planning_utils
       // //ROS_INFO("PUTILS bounding_boxes: %d", planner_config.BB.size());
       if (collision_checker.isInCollision(point_msg))
       {
-        ROS_WARN_STREAM("State in collision with obstacle!");
+        ROS_WARN("State in collision!");
         return false; // Invalid state due to collision
       }
 
