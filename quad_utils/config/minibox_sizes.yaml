@@ -1,11 +1,11 @@
 box1:
   link_name: "box1::link"
-  length: 1.0
-  width: 0.5
-  height: 0.5
+  length: 0.72
+  width: 0.72
+  height: 0.72
 
 box2:
   link_name: "box2::link"
   length: 1.0
-  width: 0.5
-  height: 0.5
+  width: 1.0
+  height: 0.72

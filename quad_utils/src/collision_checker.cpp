@@ -36,8 +36,8 @@ bool CollisionChecker::isInCollision(const geometry_msgs::Point& point) const {
         std::cout << "x: " << x << std::endl;
         std::cout << "y: " << y << std::endl;
         std::cout << "z: " << z << std::endl;
-        if ((point.x >= box.min_x - 0.01 && point.x <= box.max_x + 0.01) ||
-            (point.y >= box.min_y - 0.01 && point.y <= box.max_y + 0.01) ||
+        if ((point.x >= box.min_x - 0.01 && point.x <= box.max_x + 0.01) &&
+            (point.y >= box.min_y - 0.01 && point.y <= box.max_y + 0.01) &&
             (point.z >= box.min_z - 0.01 && point.z <= box.max_z + 0.01)) {
     
             return true;
