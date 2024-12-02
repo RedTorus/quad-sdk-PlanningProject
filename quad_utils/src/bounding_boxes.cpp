@@ -6,7 +6,6 @@ BoundingBoxes::BoundingBoxes(ros::NodeHandle& nh, const std::string& yaml_file) 
     bbox_pub_ = nh_.advertise<quad_msgs::BoundingBoxArray>("bounding_boxes", 10); // Initialize the publisher
     loadLinkSizes(yaml_file);
     ROS_INFO("BoundingBoxes initialized");
-
 }
 
 void BoundingBoxes::loadLinkSizes(const std::string& yaml_file) {

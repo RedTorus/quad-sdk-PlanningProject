@@ -91,8 +91,6 @@ struct PlannerConfig {
   // std::string yaml;
   // BoundingBoxes bounding_boxes;
   // std::unordered_map<std::string, BoundingBox> BB;
-
-  std::shared_ptr<CollisionChecker> collision_checker;
   
   /**
    * Load the vector of reachability test points and collision test

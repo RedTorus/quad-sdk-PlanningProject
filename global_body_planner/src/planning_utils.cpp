@@ -969,15 +969,10 @@ namespace planning_utils
             R_mat * planner_config.collision_points_body +
             s.pos.replicate(1, planner_config.num_collision_points);
 
-    // Check each of the four corners of the robot
+    // Check for collision points
     ros::NodeHandle nh;
     CollisionChecker collision_checker(nh);
-    /* std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";//"/config/box_sizes.yaml";
-    BoundingBoxes bounding_boxes(nh, yaml_file_path);
-    std::unordered_map<std::string, BoundingBox> BB = bounding_boxes.getBoundingBoxes();
-    //ROS_INFO("PUTILS bounding_boxes: %d", BB.size());
-    CollisionChecker collision_checker(bounding_boxes); */
-    // ROS_INFO("s.pos: [%f, %f, %f]", s.pos[0], s.pos[1], s.pos[2]);
+
     for (int i = 0; i < planner_config.num_collision_points; i++)
     {
       Eigen::Vector3d collision_point = collision_points_world.col(i);
