@@ -16,9 +16,22 @@ public:
     // Overloaded attribute for actions
     std::unordered_map<std::pair<int, int>, Action, boost::hash<std::pair<int, int>>> actions;
 
+    std::unordered_map<int, int> parents;
+
     std::unordered_map<int, double> h_dist;
 
+    friend class PRM;
+
+    //using GraphClass::vertices;
+    //using GraphClass::actions;
+    //using GraphClass::edges;
+    //using GraphClass::successors;
+    //using GraphClass::g_values;
+
     // Other methods specific to PRM_PlannerClass can be added here
+    std::vector<State> retrieveStateSequence(const std::vector<int>& path);
+
+    std::vector<Action> retrieveActionSequence(const std::vector<int>& path);
 };
 
 #endif // PRM_PLANNER_CLASS_H

@@ -164,8 +164,22 @@ int GBPL::findPlan(const PlannerConfig &planner_config, State s_start,
                    ros::Publisher &tree_pub) {
   // Perform validity checking on start and goal states
   if (!isValidState(s_start, planner_config, LEAP_STANCE)) {
-    return INVALID_START_STATE;
-  }
+    return INVALID_START_STATE;}  
+  
+  PRM_PlannerClass G(planner_config);
+  G.addVertex(0, s_start);
+  G.addVertex(1, s_goal);
+  PRM prm;
+  prm.buildRoadmap(G, planner_config, 11000, 1);
+  ROS_INFO("------------Built roadmap");
+  std::vector<int> path = prm.Astar(G, 1);
+  ROS_INFO("------------Astar successfully completed");
+  ROS_INFO("------------Path size: %ld", path.size());
+  std::vector<State> state_seq = G.retrieveStateSequence(path);
+  std::vector<Action> action_seq = G.retrieveActionSequence(path);
+  ROS_INFO("------------Retrieved state and action sequences");
+  
+  
   // Set goal height to nominal distance above terrain
   s_goal.pos[2] =
       getTerrainZFromState(s_goal, planner_config) + planner_config.h_nom;
@@ -180,12 +194,7 @@ int GBPL::findPlan(const PlannerConfig &planner_config, State s_start,
   auto t_start_total_solve = std::chrono::steady_clock::now();
   auto t_start_current_solve = std::chrono::steady_clock::now();
   int result;
-  /* PRM_PlannerClass G(planner_config);
-  G.addVertex(0, s_start);
-  G.addVertex(1, s_goal);
-  PRM prm;
-  prm.buildRoadmap(G, planner_config, 1000, 0.5);
-  ROS_INFO("------------Built roadmap"); */
+
   PlannerClass Ta(FORWARD, planner_config);
   PlannerClass Tb(REVERSE, planner_config);
   Ta.init(s_start);
@@ -304,3 +313,53 @@ int GBPL::findPlan(const PlannerConfig &planner_config, State s_start,
 
   return result;
 }
+
+int GBPL::findPlan2(const PlannerConfig &planner_config, State s_start,
+                   State s_goal, std::vector<State> &state_sequence,
+                   std::vector<Action> &action_sequence,
+                   ros::Publisher &tree_pub) {
+  // Perform validity checking on start and goal states
+  if (!isValidState(s_start, planner_config, LEAP_STANCE)) {
+    return INVALID_START_STATE;}  
+
+  // Set goal height to nominal distance above terrain
+  s_goal.pos[2] =
+      getTerrainZFromState(s_goal, planner_config) + planner_config.h_nom;
+  if (!isValidState(s_goal, planner_config, LEAP_STANCE)) {
+    return INVALID_GOAL_STATE;
+  }
+  if (poseDistance(s_start, s_goal) <= 1e-1) {
+    return INVALID_START_GOAL_EQUAL;
+  }
+  
+  PRM_PlannerClass G(planner_config);
+  G.addVertex(0, s_start);
+  G.addVertex(1, s_goal);
+  PRM prm;
+  prm.buildRoadmap(G, planner_config, 11000, 1);
+  ROS_INFO("------------Built roadmap");
+  std::vector<int> path = prm.Astar(G, 1);
+  if(path.size() == 0){
+    ROS_WARN("------------Astar failed");
+    return UNSOLVED;
+  }
+  ROS_INFO("------------Astar successfully completed");
+  ROS_INFO("------------Path size: %ld", path.size());
+  state_sequence = G.retrieveStateSequence(path);
+  action_sequence = G.retrieveActionSequence(path);
+  ROS_INFO("------------Retrieved state and action sequences");
+
+  postProcessPath(state_sequence, action_sequence, planner_config);
+  
+  path_length_ = 0.0;
+  path_duration_ = 0.0;
+  for (Action a : action_sequence) {
+      path_length_ += a.t_s_leap + a.t_f + a.t_s_land;
+      path_duration_ += (a.t_s_leap + a.t_f + a.t_s_land);
+  }
+  dist_to_goal_ = poseDistance(s_goal, state_sequence.back());
+
+  ROS_INFO("PRM planning completed successfully.");
+  return VALID;
+}
+
