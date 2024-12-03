@@ -38,11 +38,16 @@ void BoxSdfPublisher::run() {
     //ros::Rate loop_rate(0.0001); // 1 Hz
     std_msgs::String msg;
     msg.data = determineMessage(box_sdf_);
+    /* if (msg.data.empty()) {
+        //ROS_ERROR("Failed to determine message. Make sure the box_sdf parameter is set correctly.");
+        //ros::shutdown();
+    } */
+    
     std::string param_name = "/yaml";
     std::string param_val = msg.data;
     //ROS_INFO("Setting param %s to %s", param_name.c_str(), param_val.c_str());
     ros::param::set(param_name, param_val);
-
+    
     /* while (ros::ok()) {
         sdf_publisher_.publish(msg);
         ROS_INFO("Published: %s", msg.data.c_str());

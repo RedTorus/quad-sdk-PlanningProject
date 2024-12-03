@@ -1,4 +1,6 @@
 #include "global_body_planner/gbpl.h"
+#include "global_body_planner/prm_planner_class.h"
+#include "global_body_planner/prm.h"
 
 using namespace planning_utils;
 
@@ -178,7 +180,12 @@ int GBPL::findPlan(const PlannerConfig &planner_config, State s_start,
   auto t_start_total_solve = std::chrono::steady_clock::now();
   auto t_start_current_solve = std::chrono::steady_clock::now();
   int result;
-
+  /* PRM_PlannerClass G(planner_config);
+  G.addVertex(0, s_start);
+  G.addVertex(1, s_goal);
+  PRM prm;
+  prm.buildRoadmap(G, planner_config, 1000, 0.5);
+  ROS_INFO("------------Built roadmap"); */
   PlannerClass Ta(FORWARD, planner_config);
   PlannerClass Tb(REVERSE, planner_config);
   Ta.init(s_start);
