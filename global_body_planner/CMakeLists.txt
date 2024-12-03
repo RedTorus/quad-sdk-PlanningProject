@@ -48,6 +48,8 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+add_compile_options(-std=c++17)
+
 # JN Added
 set(MY_LIB_SOURCES
   src/global_body_planner.cpp

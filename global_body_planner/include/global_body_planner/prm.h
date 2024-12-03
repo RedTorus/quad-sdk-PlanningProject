@@ -1,12 +1,18 @@
 #ifndef PRM_H
 #define PRM_H
 
-//#include "global_body_planner/planner_class.h"
+// #include "global_body_planner/planner_class.h"
 #include "global_body_planner/prm_planner_class.h"
+#include "kdtree.h"
 
 using namespace planning_utils;
 
-class PRM {
+class PRM
+{
+
+private:
+    KDTree kd_tree;
+
 public:
     // Constructor
     PRM();
