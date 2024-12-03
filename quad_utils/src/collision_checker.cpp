@@ -22,9 +22,13 @@ void CollisionChecker::boundingBoxesCallback(const quad_msgs::BoundingBoxArray::
 
 bool CollisionChecker::isInCollision(const geometry_msgs::Point& point) const {
     // Check if the point is within any bounding box 
+
+    std::map<std::string, bool> collision_map;
+
     for (const auto& [link_name, box] : bounding_boxes_) {
         // std::cout << "Checking for collision with link: " << link_name << std::endl;
         // std::cout << "Point: " << point.x << ", " << point.y << ", " << point.z << std::endl;
+        // std::cout << "Bounding box: " << box.min_x << ", " << box.max_x << ", " << box.min_y << ", " << box.max_y << ", " << box.min_z << ", " << box.max_z << std::endl;
         // bool x = point.x >= box.min_x - 0.01 && point.x <= box.max_x + 0.01;
         // bool y = point.y >= box.min_y - 0.01 && point.y <= box.max_y + 0.01;
         // bool z = point.z >= box.min_z - 0.01 && point.z <= box.max_z + 0.01;
@@ -35,6 +39,13 @@ bool CollisionChecker::isInCollision(const geometry_msgs::Point& point) const {
             (point.y >= box.min_y - 0.01 && point.y <= box.max_y + 0.01) &&
             (point.z >= box.min_z - 0.01 && point.z <= box.max_z + 0.01)) {
     
+            collision_map[link_name] = true;
+        }
+    }
+
+    for (const auto& [link_name, collision] : collision_map) {
+        if (collision) {
+            ROS_WARN("Collision detected with link: %s", link_name.c_str());
             return true;
         }
     }

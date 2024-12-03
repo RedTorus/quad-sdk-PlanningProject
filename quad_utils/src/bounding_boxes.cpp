@@ -24,12 +24,12 @@ BoundingBox BoundingBoxes::computeBoundingBox(const geometry_msgs::Pose& pose, c
     const auto& position = pose.position;
 
     BoundingBox bbox;
-    bbox.min_x = position.x - size.length / 2.0;
-    bbox.max_x = position.x + size.length / 2.0;
-    bbox.min_y = position.y - size.width / 2.0;
-    bbox.max_y = position.y + size.width / 2.0;
-    bbox.min_z = position.z - size.height / 2.0;
-    bbox.max_z = position.z + size.height / 2.0;
+    bbox.min_x = position.x - (size.length / 2.0);
+    bbox.max_x = position.x + (size.length / 2.0);
+    bbox.min_y = position.y - (size.width / 2.0);
+    bbox.max_y = position.y + (size.width / 2.0);
+    bbox.min_z = position.z - (size.height / 2.0);
+    bbox.max_z = position.z + (size.height / 2.0);
     bbox.link_name = size.link_name;
 
     return bbox;

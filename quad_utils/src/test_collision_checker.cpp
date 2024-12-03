@@ -14,9 +14,9 @@ int main(int argc, char** argv) {
 
     // Define a point to check for collision
     geometry_msgs::Point point;
-    point.x = 1.6;
-    point.y = 0.0;
-    point.z = 0.0;
+    point.x = 2.1;
+    point.y = -0.25;
+    point.z = 0.36;
 
     // Process incoming messages
     ros::spinOnce();

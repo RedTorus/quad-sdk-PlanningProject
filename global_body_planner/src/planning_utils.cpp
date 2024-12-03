@@ -991,6 +991,7 @@ namespace planning_utils
       point_msg.x = collision_point.x();
       point_msg.y = collision_point.y();
       point_msg.z = collision_point.z();
+      // std::cout << "PUTILS point_msg: [" << point_msg.x << ", " << point_msg.y << ", " << point_msg.z << "]" << std::endl;
 
       //   // Check collision with obstacles using isInCollision
       // std::string yaml_name= planner_config.yaml;
