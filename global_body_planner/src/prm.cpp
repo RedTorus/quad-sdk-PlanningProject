@@ -169,6 +169,19 @@ void PRM::updateDistHeuristic(PRM_PlannerClass &G, const PlannerConfig &planner_
     G.h_dist[s_index] = delta;
 }
 
+std::vector<int> PRM::GetNeighbors(PRM_PlannerClass &G, const State &state, const double &epsilon) {
+
+    return G.neighborhoodDist(state, epsilon); 
+}
+
+std::vector<int> PRM::Astar(PRM_PlannerClass &G) {
+    // Implement pathfinding algorithm (e.g., A* or Dijkstra's)
+    std::vector<int> path;
+    std::priority_queue<int> open_set;
+    std::unordered_set<int> closed_set;
+
+}
+
 /* void PRM::connectNodes(PRM_PlannerClass &G, const PlannerConfig &planner_config) {
     // Implement logic to connect nodes in the graph
     // Placeholder implementation

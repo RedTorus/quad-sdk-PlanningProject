@@ -33,7 +33,7 @@ protected:
     bool IsInGraph(const State &s, PRM_PlannerClass &G, const PlannerConfig &planner_config);
 
     void updateDistHeuristic(PRM_PlannerClass &G, const PlannerConfig &planner_config, const State &s, const int &s_index, const State &goal);
-
+    std::vector<int> PRM::GetNeighbors(PRM_PlannerClass &G, const State &state, const double &epsilon);
 
     // Method to connect nodes in the roadmap
     //void connectNodes(PRM_PlannerClass &G, const PlannerConfig &planner_config);
