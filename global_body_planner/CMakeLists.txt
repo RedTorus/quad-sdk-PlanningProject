@@ -9,6 +9,13 @@ if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
   set(CMAKE_BUILD_TYPE Release)
 endif()
 
+# set(CMAKE_PREFIX_PATH "/usr/include/boost" "/usr/lib/x86_64-linux-gnu")
+set(Boost_DIR "/usr/lib/x86_64-linux-gnu/cmake/Boost-1.71.0")
+find_package(Boost REQUIRED COMPONENTS graph)
+
+
+
+
 ## Find catkin macros and libraries
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
@@ -20,7 +27,7 @@ find_package(catkin REQUIRED COMPONENTS
   grid_map_core
   grid_map_ros
 )
-
+# catkin_add_gtest(test_prm test/test_prm.cpp)
 ###################################
 ## catkin specific configuration ##
 ###################################
@@ -46,7 +53,10 @@ catkin_package(
 include_directories(
   include
   ${catkin_INCLUDE_DIRS}
+  ${Boost_INCLUDE_DIRS}
 )
+link_directories(${Boost_LIBRARY_DIRS})
+
 
 add_compile_options(-std=c++17)
 
@@ -89,6 +99,16 @@ target_link_libraries(${PROJECT_NAME}_node
 target_link_libraries(global_body_planner_node
   ${catkin_LIBRARIES}
 )
+# target_link_libraries(test_prm ${catkin_LIBRARIES})
+
+target_link_libraries(
+  ${PROJECT_NAME} Boost::graph
+
+)
+target_link_libraries(
+  ${PROJECT_NAME} ${Boost_LIBRARIES}
+)
+
 
 #############
 ## Testing ##
@@ -100,4 +120,15 @@ catkin_add_gtest(${PROJECT_NAME}-test
   test/test_kinematics.cpp
   test/test_performance.cpp
   test/test_rotate_grf.cpp)
-target_link_libraries(${PROJECT_NAME}-test ${PROJECT_NAME} ${catkin_LIBRARIES})
+  target_link_libraries(
+    ${PROJECT_NAME}_node
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${Boost_LIBRARIES}
+  )
+  
+  target_link_libraries(
+    ${PROJECT_NAME}
+    ${catkin_LIBRARIES}
+    ${Boost_LIBRARIES}
+  )

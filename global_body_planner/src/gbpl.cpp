@@ -158,149 +158,210 @@ void GBPL::extractClosestPath(PlannerClass &Ta, const State &s_goal,
   postProcessPath(state_sequence, action_sequence, planner_config);
 }
 
+// int GBPL::findPlan(const PlannerConfig &planner_config, State s_start,
+//                    State s_goal, std::vector<State> &state_sequence,
+//                    std::vector<Action> &action_sequence,
+//                    ros::Publisher &tree_pub) {
+//   // Perform validity checking on start and goal states
+//   if (!isValidState(s_start, planner_config, LEAP_STANCE)) {
+//     return INVALID_START_STATE;
+//   }
+//   // Set goal height to nominal distance above terrain
+//   s_goal.pos[2] =
+//       getTerrainZFromState(s_goal, planner_config) + planner_config.h_nom;
+//   if (!isValidState(s_goal, planner_config, LEAP_STANCE)) {
+//     return INVALID_GOAL_STATE;
+//   }
+//   if (poseDistance(s_start, s_goal) <= 1e-1) {
+//     return INVALID_START_GOAL_EQUAL;
+//   }
+
+//   // Initialize timing information
+//   auto t_start_total_solve = std::chrono::steady_clock::now();
+//   auto t_start_current_solve = std::chrono::steady_clock::now();
+//   int result;
+//   /* PRM_PlannerClass G(planner_config);
+//   G.addVertex(0, s_start);
+//   G.addVertex(1, s_goal);
+//   PRM prm;
+//   prm.buildRoadmap(G, planner_config, 1000, 0.5);
+//   ROS_INFO("------------Built roadmap"); */
+//   PlannerClass Ta(FORWARD, planner_config);
+//   PlannerClass Tb(REVERSE, planner_config);
+//   Ta.init(s_start);
+//   flipDirection(s_goal);
+//   Tb.init(s_goal);
+
+// #ifdef VISUALIZE_TREE
+//   tree_viz_msg_.markers.clear();
+//   tree_viz_msg_.markers.resize(1);
+// #endif
+
+//   anytime_horizon_init = 0.01;
+//   anytime_horizon =
+//       std::max(poseDistance(s_start, s_goal) / planning_rate_estimate,
+//                anytime_horizon_init);
+
+//   while (ros::ok()) {
+//     auto t_current = std::chrono::steady_clock::now();
+//     std::chrono::duration<double> total_elapsed =
+//         t_current - t_start_total_solve;
+//     std::chrono::duration<double> current_elapsed =
+//         t_current - t_start_current_solve;
+
+// #ifndef VISUALIZE_TREE
+//     if (total_elapsed.count() >= planner_config.max_planning_time) {
+//       elapsed_to_first_ = total_elapsed;
+//       num_vertices_ = (Ta.getNumVertices() + Tb.getNumVertices());
+//       break;
+//     }
+
+//     if (current_elapsed.count() >= anytime_horizon) {
+//       auto t_start_current_solve = std::chrono::steady_clock::now();
+//       anytime_horizon = anytime_horizon * horizon_expansion_factor;
+//       Ta = PlannerClass(FORWARD, planner_config);
+//       Tb = PlannerClass(REVERSE, planner_config);
+//       tree_viz_msg_.markers.clear();
+//       Ta.init(s_start);
+//       Tb.init(s_goal);
+//       continue;
+//     }
+// #endif
+
+//     // Generate random s
+//     State s_rand = Ta.randomState(planner_config);
+
+//     if (isValidState(s_rand, planner_config, LEAP_STANCE)) {
+//       if (extend(Ta, s_rand, planner_config, FORWARD, tree_pub) != TRAPPED) {
+//         State s_new = Ta.getVertex(Ta.getNumVertices() - 1);
+
+// #ifdef VISUALIZE_TREE
+//         Action a_new = Ta.getAction(Ta.getNumVertices() - 1);
+//         State s_parent =
+//             Ta.getVertex(Ta.getPredecessor(Ta.getNumVertices() - 1));
+//         publishStateActionPair(s_parent, a_new, s_rand, planner_config,
+//                                tree_viz_msg_, tree_pub);
+// #endif
+
+//         if (connect(Tb, s_new, planner_config, FORWARD, tree_pub) == REACHED) {
+//           goal_found = true;
+
+//           auto t_end = std::chrono::steady_clock::now();
+//           elapsed_to_first_ = t_end - t_start_total_solve;
+//           path_length_ = Ta.getGValue(Ta.getNumVertices() - 1) +
+//                          Tb.getGValue(Tb.getNumVertices() - 1);
+//           break;
+//         }
+//       }
+//     }
+
+//     s_rand = Tb.randomState(planner_config);
+
+//     if (isValidState(s_rand, planner_config, LEAP_STANCE)) {
+//       if (extend(Tb, s_rand, planner_config, FORWARD, tree_pub) != TRAPPED) {
+//         State s_new = Tb.getVertex(Tb.getNumVertices() - 1);
+
+// #ifdef VISUALIZE_TREE
+//         Action a_new = Tb.getAction(Tb.getNumVertices() - 1);
+//         State s_parent =
+//             Tb.getVertex(Tb.getPredecessor(Tb.getNumVertices() - 1));
+//         publishStateActionPair(s_parent, a_new, s_rand, planner_config,
+//                                tree_viz_msg_, tree_pub);
+// #endif
+
+//         if (connect(Ta, s_new, planner_config, FORWARD, tree_pub) == REACHED) {
+//           goal_found = true;
+
+//           auto t_end = std::chrono::steady_clock::now();
+//           elapsed_to_first_ = t_end - t_start_total_solve;
+//           path_length_ = Ta.getGValue(Ta.getNumVertices() - 1) +
+//                          Tb.getGValue(Tb.getNumVertices() - 1);
+//           break;
+//         }
+//       }
+//     }
+//   }
+
+//   num_vertices_ = (Ta.getNumVertices() + Tb.getNumVertices());
+
+//   if (goal_found == true) {
+//     extractPath(Ta, Tb, state_sequence, action_sequence, planner_config);
+//     result = VALID;
+//   } else {
+//     extractClosestPath(Ta, s_goal, state_sequence, action_sequence,
+//                        planner_config);
+//     result = (state_sequence.size() > 1) ? VALID_PARTIAL : UNSOLVED;
+//   }
+
+//   auto t_end = std::chrono::steady_clock::now();
+//   elapsed_total_ = t_end - t_start_total_solve;
+
+//   path_duration_ = 0.0;
+//   for (Action a : action_sequence) {
+//     path_duration_ += (a.t_s_leap + a.t_f + a.t_s_land);
+//   }
+//   dist_to_goal_ = poseDistance(s_goal, state_sequence.back());
+
+//   return result;
+// }
+
 int GBPL::findPlan(const PlannerConfig &planner_config, State s_start,
                    State s_goal, std::vector<State> &state_sequence,
                    std::vector<Action> &action_sequence,
                    ros::Publisher &tree_pub) {
-  // Perform validity checking on start and goal states
-  if (!isValidState(s_start, planner_config, LEAP_STANCE)) {
-    return INVALID_START_STATE;
-  }
-  // Set goal height to nominal distance above terrain
-  s_goal.pos[2] =
-      getTerrainZFromState(s_goal, planner_config) + planner_config.h_nom;
-  if (!isValidState(s_goal, planner_config, LEAP_STANCE)) {
-    return INVALID_GOAL_STATE;
-  }
-  if (poseDistance(s_start, s_goal) <= 1e-1) {
-    return INVALID_START_GOAL_EQUAL;
-  }
-
-  // Initialize timing information
-  auto t_start_total_solve = std::chrono::steady_clock::now();
-  auto t_start_current_solve = std::chrono::steady_clock::now();
-  int result;
-  /* PRM_PlannerClass G(planner_config);
-  G.addVertex(0, s_start);
-  G.addVertex(1, s_goal);
-  PRM prm;
-  prm.buildRoadmap(G, planner_config, 1000, 0.5);
-  ROS_INFO("------------Built roadmap"); */
-  PlannerClass Ta(FORWARD, planner_config);
-  PlannerClass Tb(REVERSE, planner_config);
-  Ta.init(s_start);
-  flipDirection(s_goal);
-  Tb.init(s_goal);
-
-#ifdef VISUALIZE_TREE
-  tree_viz_msg_.markers.clear();
-  tree_viz_msg_.markers.resize(1);
-#endif
-
-  anytime_horizon_init = 0.01;
-  anytime_horizon =
-      std::max(poseDistance(s_start, s_goal) / planning_rate_estimate,
-               anytime_horizon_init);
-
-  while (ros::ok()) {
-    auto t_current = std::chrono::steady_clock::now();
-    std::chrono::duration<double> total_elapsed =
-        t_current - t_start_total_solve;
-    std::chrono::duration<double> current_elapsed =
-        t_current - t_start_current_solve;
-
-#ifndef VISUALIZE_TREE
-    if (total_elapsed.count() >= planner_config.max_planning_time) {
-      elapsed_to_first_ = total_elapsed;
-      num_vertices_ = (Ta.getNumVertices() + Tb.getNumVertices());
-      break;
+    // Perform validity checking on start and goal states
+    if (!isValidState(s_start, planner_config, LEAP_STANCE)) {
+        ROS_WARN("Invalid start state.");
+        return INVALID_START_STATE;
+    }
+    s_goal.pos[2] = getTerrainZFromState(s_goal, planner_config) + planner_config.h_nom;
+    if (!isValidState(s_goal, planner_config, LEAP_STANCE)) {
+        ROS_WARN("Invalid goal state.");
+        return INVALID_GOAL_STATE;
+    }
+    if (poseDistance(s_start, s_goal) <= 1e-1) {
+        ROS_WARN("Start and goal are too close.");
+        return INVALID_START_GOAL_EQUAL;
     }
 
-    if (current_elapsed.count() >= anytime_horizon) {
-      auto t_start_current_solve = std::chrono::steady_clock::now();
-      anytime_horizon = anytime_horizon * horizon_expansion_factor;
-      Ta = PlannerClass(FORWARD, planner_config);
-      Tb = PlannerClass(REVERSE, planner_config);
-      tree_viz_msg_.markers.clear();
-      Ta.init(s_start);
-      Tb.init(s_goal);
-      continue;
+    // Initialize PRM Planner
+    PRM_PlannerClass G(planner_config);
+    G.addVertex(0, s_start);
+    G.addVertex(1, s_goal);
+
+    PRM prm;
+    prm.buildRoadmap(G, planner_config, 11000, 1.0); // Build the PRM roadmap
+    ROS_INFO("PRM roadmap built successfully!");
+
+    // Use A* to find a path
+    std::vector<int> path = prm.findPathUsingAStar(G, 0, 1);
+    // ROS_INFO("Pathfinding using A* completed.");
+    if (path.empty()) {
+        ROS_WARN("PRM pathfinding failed.");
+        return UNSOLVED;
     }
-#endif
+    ROS_INFO("Pathfinding using A* completed.");
+    
 
-    // Generate random s
-    State s_rand = Ta.randomState(planner_config);
+    // Extract the state and action sequences
+    // state_sequence = G.getStateSequence(path);
+    // action_sequence = G.getActionSequence(path);
+    state_sequence = G.retrieveStateSequence(path);
+    action_sequence = G.retrieveActionSequence(path);
 
-    if (isValidState(s_rand, planner_config, LEAP_STANCE)) {
-      if (extend(Ta, s_rand, planner_config, FORWARD, tree_pub) != TRAPPED) {
-        State s_new = Ta.getVertex(Ta.getNumVertices() - 1);
 
-#ifdef VISUALIZE_TREE
-        Action a_new = Ta.getAction(Ta.getNumVertices() - 1);
-        State s_parent =
-            Ta.getVertex(Ta.getPredecessor(Ta.getNumVertices() - 1));
-        publishStateActionPair(s_parent, a_new, s_rand, planner_config,
-                               tree_viz_msg_, tree_pub);
-#endif
+    // Post-process the path to reduce length if necessary
+    postProcessPath(state_sequence, action_sequence, planner_config);
 
-        if (connect(Tb, s_new, planner_config, FORWARD, tree_pub) == REACHED) {
-          goal_found = true;
-
-          auto t_end = std::chrono::steady_clock::now();
-          elapsed_to_first_ = t_end - t_start_total_solve;
-          path_length_ = Ta.getGValue(Ta.getNumVertices() - 1) +
-                         Tb.getGValue(Tb.getNumVertices() - 1);
-          break;
-        }
-      }
+    // Compute path length and duration for reporting
+    path_length_ = 0.0;
+    path_duration_ = 0.0;
+    for (Action a : action_sequence) {
+        path_length_ += a.t_s_leap + a.t_f + a.t_s_land;
+        path_duration_ += (a.t_s_leap + a.t_f + a.t_s_land);
     }
+    dist_to_goal_ = poseDistance(s_goal, state_sequence.back());
 
-    s_rand = Tb.randomState(planner_config);
-
-    if (isValidState(s_rand, planner_config, LEAP_STANCE)) {
-      if (extend(Tb, s_rand, planner_config, FORWARD, tree_pub) != TRAPPED) {
-        State s_new = Tb.getVertex(Tb.getNumVertices() - 1);
-
-#ifdef VISUALIZE_TREE
-        Action a_new = Tb.getAction(Tb.getNumVertices() - 1);
-        State s_parent =
-            Tb.getVertex(Tb.getPredecessor(Tb.getNumVertices() - 1));
-        publishStateActionPair(s_parent, a_new, s_rand, planner_config,
-                               tree_viz_msg_, tree_pub);
-#endif
-
-        if (connect(Ta, s_new, planner_config, FORWARD, tree_pub) == REACHED) {
-          goal_found = true;
-
-          auto t_end = std::chrono::steady_clock::now();
-          elapsed_to_first_ = t_end - t_start_total_solve;
-          path_length_ = Ta.getGValue(Ta.getNumVertices() - 1) +
-                         Tb.getGValue(Tb.getNumVertices() - 1);
-          break;
-        }
-      }
-    }
-  }
-
-  num_vertices_ = (Ta.getNumVertices() + Tb.getNumVertices());
-
-  if (goal_found == true) {
-    extractPath(Ta, Tb, state_sequence, action_sequence, planner_config);
-    result = VALID;
-  } else {
-    extractClosestPath(Ta, s_goal, state_sequence, action_sequence,
-                       planner_config);
-    result = (state_sequence.size() > 1) ? VALID_PARTIAL : UNSOLVED;
-  }
-
-  auto t_end = std::chrono::steady_clock::now();
-  elapsed_total_ = t_end - t_start_total_solve;
-
-  path_duration_ = 0.0;
-  for (Action a : action_sequence) {
-    path_duration_ += (a.t_s_leap + a.t_f + a.t_s_land);
-  }
-  dist_to_goal_ = poseDistance(s_goal, state_sequence.back());
-
-  return result;
+    ROS_INFO("PRM planning completed successfully.");
+    return VALID;
 }
