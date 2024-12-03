@@ -1,12 +1,18 @@
 #ifndef PRM_H
 #define PRM_H
 
-//#include "global_body_planner/planner_class.h"
+// #include "global_body_planner/planner_class.h"
 #include "global_body_planner/prm_planner_class.h"
+#include "kdtree.h"
 
 using namespace planning_utils;
 
-class PRM {
+class PRM
+{
+
+private:
+    KDTree kd_tree;
+
 public:
     // Constructor
     PRM();
@@ -34,14 +40,13 @@ protected:
 
     void updateDistHeuristic(PRM_PlannerClass &G, const PlannerConfig &planner_config, const State &s, const int &s_index, const State &goal);
 
-
     // Method to connect nodes in the roadmap
-    //void connectNodes(PRM_PlannerClass &G, const PlannerConfig &planner_config);
+    // void connectNodes(PRM_PlannerClass &G, const PlannerConfig &planner_config);
 
     // PlannerClass instance to manage the graph
-    //PlannerClass planner_;
-    //int num_samples_;
-    //PlannerConfig planner_config_;
+    // PlannerClass planner_;
+    // int num_samples_;
+    // PlannerConfig planner_config_;
 };
 
 #endif // PRM_H

@@ -4,6 +4,7 @@
 namespace planning_utils
 {
 
+
   State fullStateToState(const FullState &full_state)
   {
     State state;
