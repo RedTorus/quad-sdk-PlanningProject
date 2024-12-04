@@ -30,6 +30,25 @@ bool CollisionChecker::isInCollision(const geometry_msgs::Point& point) const {
     return false;
 }
 
+bool CollisionChecker::isInExpandedCollision(const geometry_msgs::Point& point, const Eigen::Vector3d& velocity, double dt) const {
+    // Get the latest bounding boxes
+    const auto& boxes = bounding_boxes_.getBoundingBoxes();
+
+    // Check if the point is within any expanded bounding box
+    for (const auto& [link_name, box] : boxes) {
+        BoundingBox expanded_box = bounding_boxes_.computeSlidingWindowBoundingBox(box, velocity, dt);
+
+        if (point.x >= expanded_box.min_x && point.x <= expanded_box.max_x &&
+            point.y >= expanded_box.min_y && point.y <= expanded_box.max_y &&
+            point.z >= expanded_box.min_z && point.z <= expanded_box.max_z) {
+            return true; // Point is inside an expanded bounding box
+        }
+    }
+
+    // No collision detected
+    return false;
+}
+
 bool CollisionChecker::isInTransformedCollision(const geometry_msgs::Point& point,const Eigen::Matrix3d& R_mat) const {
     // Get the latest bounding boxes
     const auto& boxes = bounding_boxes_.getBoundingBoxes();

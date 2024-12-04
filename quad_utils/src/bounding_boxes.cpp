@@ -41,6 +41,18 @@ BoundingBox BoundingBoxes::computeBoundingBox(const gazebo_msgs::LinkState& link
     return bbox;
 }
 
+BoundingBox BoundingBoxes::computeSlidingWindowBoundingBox(const BoundingBox& bbox, const Eigen::Vector3d& velocity, double dt) const {
+    BoundingBox expanded_bbox;
+    expanded_bbox.min_x = std::min(bbox.min_x, bbox.min_x + velocity.x() * dt);
+    expanded_bbox.max_x = std::max(bbox.max_x, bbox.max_x + velocity.x() * dt);
+    expanded_bbox.min_y = std::min(bbox.min_y, bbox.min_y + velocity.y() * dt);
+    expanded_bbox.max_y = std::max(bbox.max_y, bbox.max_y + velocity.y() * dt);
+    expanded_bbox.min_z = std::min(bbox.min_z, bbox.min_z + velocity.z() * dt);
+    expanded_bbox.max_z = std::max(bbox.max_z, bbox.max_z + velocity.z() * dt);
+
+    return expanded_bbox;
+}
+
 const std::unordered_map<std::string, BoundingBox>& BoundingBoxes::getBoundingBoxes() const {
     return bounding_boxes_;
 }
