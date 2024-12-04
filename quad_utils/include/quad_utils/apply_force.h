@@ -14,7 +14,8 @@ void applyContinuousForceToLegs(ros::NodeHandle& nh, const std::vector<std::stri
 // Function to apply periodic force to multiple legs of the table
 void applyPeriodicForceToLegs(ros::NodeHandle& nh, const std::vector<std::string>& legs, double force_y, double duration_secs, double interval_secs);
 
-void moveBlockContinuously(ros::NodeHandle& nh, const std::string& model_name, double velocity_x, double velocity_y, double velocity_z, double duration_secs);
+void moveBlockContinuously(ros::NodeHandle& nh, const std::string& model_name, double velocity_x, double velocity_y, double velocity_z, double duration_secs, double period_secs);
 void setPosition(ros::NodeHandle& nh, const std::string& model_name, double x, double y, double z);
 bool getInitialPosition(ros::NodeHandle& nh, const std::string& model_name, double& x, double& y, double& z);
+
 #endif // APPLY_FORCE_H

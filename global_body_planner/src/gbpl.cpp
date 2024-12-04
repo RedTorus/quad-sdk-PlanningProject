@@ -166,7 +166,7 @@ int GBPL::findPlan(const PlannerConfig &planner_config, State s_start,
   if (!isValidState(s_start, planner_config, LEAP_STANCE)) {
     return INVALID_START_STATE;}  
   
-  PRM_PlannerClass G(planner_config);
+  /* PRM_PlannerClass G(planner_config);
   G.addVertex(0, s_start);
   G.addVertex(1, s_goal);
   PRM prm;
@@ -178,7 +178,7 @@ int GBPL::findPlan(const PlannerConfig &planner_config, State s_start,
   std::vector<State> state_seq = G.retrieveStateSequence(path);
   std::vector<Action> action_seq = G.retrieveActionSequence(path);
   ROS_INFO("------------Retrieved state and action sequences");
-  
+   */
   
   // Set goal height to nominal distance above terrain
   s_goal.pos[2] =
@@ -336,9 +336,9 @@ int GBPL::findPlan2(const PlannerConfig &planner_config, State s_start,
   G.addVertex(0, s_start);
   G.addVertex(1, s_goal);
   PRM prm;
-  prm.buildRoadmap(G, planner_config, 70000, 0.35);
+  prm.buildRoadmap(G, planner_config, 6000, 0.8);
   ROS_INFO("------------Built roadmap");
-  std::vector<int> path = prm.Astar(G, 0.35);
+  std::vector<int> path = prm.Astar(G, 0.7);
   if(path.size() == 0){
     ROS_WARN("------------Astar failed");
     return UNSOLVED;

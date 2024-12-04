@@ -170,7 +170,7 @@ void setPosition(ros::NodeHandle& nh, const std::string& model_name, double x, d
     }
 }
 
-void moveBlockContinuously(ros::NodeHandle& nh, const std::string& model_name, double velocity_x, double velocity_y, double velocity_z, double duration_secs) {
+void moveBlockContinuously(ros::NodeHandle& nh, const std::string& model_name, double velocity_x, double velocity_y, double velocity_z, double duration_secs, double period_secs) {
     double x, y, z;
     if (!getInitialPosition(nh, model_name, x, y, z)) {
         ROS_ERROR("Failed to get initial position. Exiting.");
@@ -180,11 +180,21 @@ void moveBlockContinuously(ros::NodeHandle& nh, const std::string& model_name, d
     ros::Rate rate(100); // Adjust the rate as needed
     ros::Time start_time = ros::Time::now();
     ros::Duration duration(duration_secs);
+    ros::Duration period(period_secs);
+    ros::Time last_toggle_time = ros::Time::now();
 
     while (ros::ok() && (ros::Time::now() - start_time) < duration) {
+        // Toggle velocity direction every period_secs
+        if ((ros::Time::now() - last_toggle_time) >= period) {
+            velocity_x = -velocity_x;
+            velocity_y = -velocity_y;
+            velocity_z = -velocity_z;
+            last_toggle_time = ros::Time::now();
+        }
+
         x += velocity_x / 100.0; // Update position based on velocity and rate
-        // y += velocity_y / 100.0;
-        // z += velocity_z / 100.0;
+        y += velocity_y / 100.0;
+        z += velocity_z / 100.0;
 
         setPosition(nh, model_name, x, y, z);
 
