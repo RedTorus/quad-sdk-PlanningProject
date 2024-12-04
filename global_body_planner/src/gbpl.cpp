@@ -336,9 +336,9 @@ int GBPL::findPlan2(const PlannerConfig &planner_config, State s_start,
   G.addVertex(0, s_start);
   G.addVertex(1, s_goal);
   PRM prm;
-  prm.buildRoadmap(G, planner_config, 30000, 0.46);
+  prm.buildRoadmap(G, planner_config, 70000, 0.35);
   ROS_INFO("------------Built roadmap");
-  std::vector<int> path = prm.Astar(G, 0.46);
+  std::vector<int> path = prm.Astar(G, 0.35);
   if(path.size() == 0){
     ROS_WARN("------------Astar failed");
     return UNSOLVED;
@@ -358,6 +358,9 @@ int GBPL::findPlan2(const PlannerConfig &planner_config, State s_start,
       path_duration_ += (a.t_s_leap + a.t_f + a.t_s_land);
   }
   dist_to_goal_ = poseDistance(s_goal, state_sequence.back());
+
+  
+  ROS_INFO("Final path duration: %f", path_duration_);
 
   ROS_INFO("PRM planning completed successfully.");
   return VALID;

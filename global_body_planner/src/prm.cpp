@@ -4,6 +4,7 @@
 #include <queue>
 #include <unordered_set>
 #include <algorithm> 
+#include <chrono>
 
 PRM::PRM() {}
 
@@ -12,7 +13,8 @@ PRM::~PRM() {}
 using namespace planning_utils;
 
 void PRM::buildRoadmap(PRM_PlannerClass &G, const PlannerConfig &planner_config, const int &num_samples, const double &epsilon)
-{
+{   
+    auto start_time = std::chrono::steady_clock::now(); // Start timing
     StateActionResult result;
     State goal = G.getVertex(1);
     G.updateGValue(1, std::numeric_limits<double>::max()-10);
@@ -58,7 +60,10 @@ void PRM::buildRoadmap(PRM_PlannerClass &G, const PlannerConfig &planner_config,
             }
         }
     }
-    // connectNodes(G, planner_config);
+    auto end_time = std::chrono::steady_clock::now(); // End timing
+    std::chrono::duration<double> elapsed_seconds = end_time - start_time;
+    ROS_INFO("BuildRoadmap completed in %f seconds", elapsed_seconds.count());
+    ROS_INFO("Number of nodes in PRM: %d", G.getNumVertices());
 }
 
 bool PRM::GetAction(State start, State s, StateActionResult &result, const PlannerConfig &planner_config)
@@ -214,7 +219,7 @@ std::vector<int> PRM::GetNeighbors(PRM_PlannerClass &G, const State &state, cons
 }
 
 std::vector<int> PRM::Astar(PRM_PlannerClass &G, const double &epsilon) {
-    // Implement pathfinding algorithm (e.g., A* or Dijkstra's)
+    auto start_time = std::chrono::steady_clock::now();
     std::vector<int> path;
     auto compare = [&G](int lhs, int rhs) {
         return G.g_values[lhs] + G.h_dist[lhs] > G.g_values[rhs] + G.h_dist[rhs];
@@ -248,7 +253,7 @@ std::vector<int> PRM::Astar(PRM_PlannerClass &G, const double &epsilon) {
                 continue;
             } */
             if( neighbor == 1){
-                ROS_INFO("--------Goal found");
+                //ROS_INFO("--------Goal found");
                 //break;
             }
 
@@ -275,6 +280,11 @@ std::vector<int> PRM::Astar(PRM_PlannerClass &G, const double &epsilon) {
     std::reverse(path.begin(), path.end());
     ROS_INFO("---------Path found");
 
+    auto end_time = std::chrono::steady_clock::now(); // End timing
+    std::chrono::duration<double> elapsed_seconds = end_time - start_time;
+    ROS_INFO("Astar completed in %f seconds", elapsed_seconds.count());
+    ROS_INFO("Cost of Astar (g value of goal): %f", G.g_values[1]);
+    ROS_INFO("Number of nodes in closed list: %d", closed.size());
     return path;
 
 }

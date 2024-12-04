@@ -5,6 +5,7 @@
 #include "global_body_planner/prm_planner_class.h"
 #include "global_body_planner/kdtree.h"
 
+
 using namespace planning_utils;
 
 class PRM
