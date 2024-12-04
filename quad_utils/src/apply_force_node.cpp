@@ -65,13 +65,26 @@ int main(int argc, char **argv) {
     ros::init(argc, argv, "apply_force_node");
     ros::NodeHandle nh;
 
-    std::vector<std::string> legs = {"box::leg1", "box::leg2", "box::leg3", "box::leg4"};
-    double force_y = 380.0;   // Force magnitude
-    double duration = 0.5;   // Duration of each force application
-    double interval = 1.0;   // Interval between force reversals
+    // // std::vector<std::string> legs = {"box::leg1", "box::leg2", "box::leg3", "box::leg4"};
+    // std::vector<std::string> legs = {"box::block"};
+    // double force_y = 1000.0;   // Force magnitude
+    // double duration = 5.0;   // Duration of each force application
+    // double interval = 5.0;   // Interval between force reversals
 
-    // Apply periodic forces
-    applyPeriodicForceToLegs(nh, legs, force_y, duration, interval);
+    // // Apply periodic forces
+    // // applyPeriodicForceToLegs(nh, legs, force_y, duration, interval);
+    // applyContinuousForceToLegs(nh, legs, force_y, duration);
+
+    std::string model_name = "box"; // Replace with the actual name of your block
+    double velocity_x = 0.1; // Velocity in x direction
+    double velocity_y = 0.0; // Velocity in y direction
+    double velocity_z = 0.0; // Velocity in z direction
+    double duration_secs = 100.0; // Duration in seconds
+
+    moveBlockContinuously(nh, model_name, velocity_x, velocity_y, velocity_z, duration_secs);
+
+    // ros::spinOnce();
+    ros::spin();
 
     return 0;
 }
