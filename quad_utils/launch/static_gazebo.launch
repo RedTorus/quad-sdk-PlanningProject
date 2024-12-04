@@ -23,7 +23,7 @@
     <param name="box_sdf" value="$(find underbrush_description)/sdf/table_short.sdf" />
   </node>
   
-   <node name="spawn_box" pkg="gazebo_ros" type="spawn_model" args="-sdf -param box_sdf -model box -x 1.6 -y 0.0 -z 0.7" output="screen"/>    
+   <node name="spawn_box" pkg="gazebo_ros" type="spawn_model" args="-sdf -param box_sdf -model box -x 2.6 -y 0.0 -z 0.7" output="screen"/>    
   
 <!--    <node name="apply_force_node" pkg="quad_utils" type="apply_force_node" output="screen"/>
  -->

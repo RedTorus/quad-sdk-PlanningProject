@@ -223,8 +223,10 @@ int GBPL::findPlan(const PlannerConfig &planner_config, State s_start,
 
     // Generate random s
     State s_rand = Ta.randomState(planner_config);
-
-    if (isValidState(s_rand, planner_config, LEAP_STANCE)) {
+    // std::cout << "*********************************" << std::endl;
+    std::cout << "findPlan Z: " << s_rand.pos[2] << " X: " << s_rand.pos[0] << " Y: " << s_rand.pos[1] << std::endl;
+    if (isValidState(s_rand, planner_config, LEAP_STANCE) && isValidZ(s_rand, planner_config, LEAP_STANCE)) {
+      // std::cout << "after isValid Z: " << s_rand.pos[2] << std::endl;
       if (extend(Ta, s_rand, planner_config, FORWARD, tree_pub) != TRAPPED) {
         State s_new = Ta.getVertex(Ta.getNumVertices() - 1);
 
@@ -249,8 +251,9 @@ int GBPL::findPlan(const PlannerConfig &planner_config, State s_start,
     }
 
     s_rand = Tb.randomState(planner_config);
-
-    if (isValidState(s_rand, planner_config, LEAP_STANCE)) {
+    std::cout << "findPlan Z 2: " << s_rand.pos[2] << " X: " << s_rand.pos[0] << " Y: " << s_rand.pos[1] << std::endl;
+    if (isValidState(s_rand, planner_config, LEAP_STANCE) && isValidZ(s_rand, planner_config, LEAP_STANCE)) {
+      // std::cout << "after isValid Z: " << s_rand.pos[2] << std::endl;
       if (extend(Tb, s_rand, planner_config, FORWARD, tree_pub) != TRAPPED) {
         State s_new = Tb.getVertex(Tb.getNumVertices() - 1);
 

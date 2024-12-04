@@ -12,7 +12,7 @@ bool CollisionChecker::isInCollision(const geometry_msgs::Point& point) const {
     // Check if the point is within any bounding box
     for (const auto& [link_name, box] : boxes) {
         //ROS_INFO("box.min_x: %f box.max_x: %f box.min_y: %f box.max_y: %f", box.min_x, box.max_x, box.min_y, box.max_y);	
-        if (point.x >= box.min_x && point.x <= box.max_x && point.y >= box.min_y && point.y <= box.max_y && point.z >= box.min_z && point.z <= box.max_z) {
+        if (point.x >= box.min_x-0.03 && point.x <= box.max_x+0.03 && point.y >= box.min_y-0.03 && point.y <= box.max_y+0.03) {
             ROS_WARN_STREAM("Collision detected with link: " << link_name);
             return true; // Point is inside a bounding box
         }
@@ -31,45 +31,44 @@ bool CollisionChecker::isInCollision(const geometry_msgs::Point& point) const {
 double CollisionChecker::isInCollisionZ(double z, const double& h_min, const double& h_max) const {
     // Get the latest bounding boxes
     const auto& boxes = bounding_boxes_.getBoundingBoxes();
-    //ROS_INFO("CCHECKER point: [%f, %f, %f]", point.x, point.y, point.z);
-    //ROS_INFO("CCHECKER boxes size: %d", boxes.size());
-    // Check if the point is within any bounding box
     bool collided = false;
-
+    
     for (const auto& [link_name, box] : boxes) {
         if (link_name == "table_top"){
-            if (z >= box.min_z && z <= box.max_z) {
-                std::cout << "h_nom failed" << std::endl;
+            std::cout << "box min: " << box.min_z << std::endl; 
+            if (z >= box.min_z-0.1 && z <= box.max_z+0.1) {
+                std::cout << "h_nom collided" << std::endl;
                 collided = true; // Point is inside a bounding box
             }
 
             if (collided){
-                std::cout << "Checking h_min" << std::endl;
-                if (h_min < box.min_z){
+                std::cout << "Checking h_min: " << h_min << " boxmin: " << box.min_z << std::endl;
+                if (h_min < box.min_z-0.1){
                     std::cout << "h_min passed: " << h_min << " box: " << box.min_z << std::endl;
-                    z = 0.075;
+                    z = 0.13;
                     collided = false;
                     break;
                 }
             }
             
-            if (collided){
-                std::cout << "Checking h_max" << std::endl;
-                if (h_max > box.max_z){
-                    std::cout << "h_max passed: " << h_max << " box: " << box.max_z << std::endl;
-                    z = 0.375 ;
-                    collided = false;
-                    break;
-                }
-            }
+            // if (collided){
+            //     std::cout << "Checking h_max" << std::endl;
+            //     if (h_max > box.max_z+0.03){
+            //         std::cout << "h_max passed: " << h_max << " box: " << box.max_z << std::endl;
+            //         z = 0.375;
+            //         collided = false;
+            //         break;
+            //     }
+            // }
         }
     }
 
     if (collided){
-        ROS_WARN_STREAM("Z Collision detected with link:");
+        // ROS_WARN_STREAM("Z Collision detected with link:");
         return 0;
     }
     else{
+        // std::cout << "Collision checking done" << std::endl;
         return z;
     }
 }
