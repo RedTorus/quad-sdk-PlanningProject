@@ -242,21 +242,17 @@ std::vector<int> PRM::Astar(PRM_PlannerClass &G, const double &epsilon) {
 
         std::vector<int> neighbors = GetNeighbors(G, G.getVertex(current), epsilon);
         for(int neighbor : neighbors){
-            if(closed.find(neighbor) != closed.end()){
+            bool a = checkConnection(G, current, neighbor);
+            /* auto it = G.actions.find({current, neighbor});
+            if (it != G.actions.end()) {
                 continue;
-            }
-            if (std::find(G.edges[neighbor].begin(), G.edges[neighbor].end(), current) == G.edges[neighbor].end()) {
-                continue;
-            }
-            if (std::find(G.successors[current].begin(), G.successors[current].end(), neighbor) == G.successors[current].end()) {
-                continue;
-            }
+            } */
             if( neighbor == 1){
                 ROS_INFO("--------Goal found");
                 //break;
             }
 
-            if (G.g_values[neighbor] > G.g_values[current] + stateDistance(G.getVertex(current), G.getVertex(neighbor))){
+            if ((G.g_values[neighbor] > G.g_values[current] + stateDistance(G.getVertex(current), G.getVertex(neighbor)))&& a){
                 G.g_values[neighbor] = G.g_values[current] + stateDistance(G.getVertex(current), G.getVertex(neighbor));
                 G.parents[neighbor] = current;
                 if(open_set.find(neighbor) == open_set.end()){
@@ -269,6 +265,7 @@ std::vector<int> PRM::Astar(PRM_PlannerClass &G, const double &epsilon) {
     }
     if (current != 1){
         ROS_ERROR("Goal not found");
+        throw std::runtime_error("Goal not found");
     }
     while(current != start){
         path.push_back(current);
@@ -280,6 +277,14 @@ std::vector<int> PRM::Astar(PRM_PlannerClass &G, const double &epsilon) {
 
     return path;
 
+}
+
+bool PRM::checkConnection(PRM_PlannerClass &G, int& s, int& neighbor) {
+    bool is_s_parent = std::find(G.edges[neighbor].begin(), G.edges[neighbor].end(), s) == G.edges[neighbor].end();
+    bool is_neighbor_child = std::find(G.successors[s].begin(), G.successors[s].end(), neighbor) == G.successors[s].end();
+    bool is_action_there = G.actions.find({s, neighbor}) != G.actions.end();
+
+    return is_s_parent && is_neighbor_child && is_action_there;
 }
 
 

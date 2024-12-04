@@ -47,6 +47,8 @@ protected:
     
     std::vector<int> GetNeighbors(PRM_PlannerClass &G, const State &state, const double &epsilon);
 
+    bool checkConnection(PRM_PlannerClass &G, int& s, int& neighbor);
+
     
     // Method to connect nodes in the roadmap
     // void connectNodes(PRM_PlannerClass &G, const PlannerConfig &planner_config);

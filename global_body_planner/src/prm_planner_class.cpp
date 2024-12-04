@@ -20,8 +20,19 @@ std::vector<Action> PRM_PlannerClass::retrieveActionSequence(const std::vector<i
         if (it != actions.end()) {
             action_sequence.push_back(it->second);
         } else {
-            ROS_INFO("-----------AT path nr %d", i);
+            /* ROS_INFO("-----------Trying action calc");
+            PRM prm;
+            StateActionResult result;
+            PlannerConfig planner_config;
+            if (prm.calculateDirectAction(getVertex(path[i - 1]), getVertex(path[i]), result, planner_config)) {
+                ROS_INFO("-----------manually adding action for path nr %d", i);
+                action_sequence.push_back(result.a_new);
+            } else { */
+            ROS_ERROR("-----------AT path nr %d", i);
             throw std::runtime_error("Action not found in the graph.");
+            //}
+            /* ROS_INFO("-----------AT path nr %d", i);
+            throw std::runtime_error("Action not found in the graph."); */
         }
     }
     return action_sequence;
