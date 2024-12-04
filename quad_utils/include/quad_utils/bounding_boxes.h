@@ -6,6 +6,7 @@
 #include <string>
 #include <unordered_map>
 #include <vector>
+#include <Eigen/Dense>
 
 // Define a structure for link sizes
 struct LinkSize {
@@ -34,8 +35,11 @@ public:
     void updateBoundingBoxes();
     const std::unordered_map<std::string, BoundingBox>& getBoundingBoxes() const;
 
-private:
     BoundingBox computeBoundingBox(const gazebo_msgs::LinkState& link_state, const LinkSize& size);
+    BoundingBox computeSlidingWindowBoundingBox(const BoundingBox& bbox, const Eigen::Vector3d& velocity, double dt) const;
+
+private:
+    
     void loadLinkSizes(const std::string& yaml_file);
 
     ros::NodeHandle nh_;

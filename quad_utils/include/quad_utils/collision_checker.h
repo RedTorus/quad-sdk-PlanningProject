@@ -23,6 +23,8 @@ public:
      */
     bool isInCollision(const geometry_msgs::Point& point) const;
 
+    bool isInExpandedCollision(const geometry_msgs::Point& point, const Eigen::Vector3d& velocity, double dt) const;
+
     bool isInTransformedCollision(const geometry_msgs::Point& point,const Eigen::Matrix3d& R_mat) const;
 
     bool isInTransformedCollision2(const geometry_msgs::Point& point,const Eigen::Matrix3d& R_mat, const Eigen::Vector3d& T) const;

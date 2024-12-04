@@ -3,6 +3,8 @@ project(quad_utils)
 
 ## Compile as C++14, supported in ROS Melodic and newer
 add_compile_options(-std=c++14)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 ## Set default cmake build type to release
 if(NOT CMAKE_CONFIGURATION_TYPES AND NOT CMAKE_BUILD_TYPE)
