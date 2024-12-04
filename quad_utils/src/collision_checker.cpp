@@ -29,18 +29,15 @@ bool CollisionChecker::isInCollision(const geometry_msgs::Point& point) const {
         // std::cout << "Checking for collision with link: " << link_name << std::endl;
         // std::cout << "Point: " << point.x << ", " << point.y << ", " << point.z << std::endl;
         // std::cout << "Bounding box: " << box.min_x << ", " << box.max_x << ", " << box.min_y << ", " << box.max_y << ", " << box.min_z << ", " << box.max_z << std::endl;
-        // bool x = point.x >= box.min_x - 0.01 && point.x <= box.max_x + 0.01;
-        // bool y = point.y >= box.min_y - 0.01 && point.y <= box.max_y + 0.01;
-        // bool z = point.z >= box.min_z - 0.01 && point.z <= box.max_z + 0.01;
+        bool x = point.x >= box.min_x - 0.01 && point.x <= box.max_x + 0.01;
+        bool y = point.y >= box.min_y - 0.01 && point.y <= box.max_y + 0.01;
+        bool z = point.z >= box.min_z - 0.01 && point.z <= box.max_z + 0.01;
         // std::cout << "x: " << x << std::endl;
         // std::cout << "y: " << y << std::endl;
         // std::cout << "z: " << z << std::endl;
-        if ((point.x >= box.min_x - 0.01 && point.x <= box.max_x + 0.01) &&
-            (point.y >= box.min_y - 0.01 && point.y <= box.max_y + 0.01) &&
-            (point.z >= box.min_z - 0.01 && point.z <= box.max_z + 0.01)) {
-    
+        if (x && y) {
             collision_map[link_name] = true;
-        }
+        } 
     }
 
     for (const auto& [link_name, collision] : collision_map) {
