@@ -29,7 +29,7 @@ SOFTWARE.
 <sdf version='1.6'>
   <model name='table'>
     <link name='table_top'>
-      <pose frame=''>0 0 0.45 0 0 0</pose> <!-- Adjusted z-coordinate to account for new leg length -->
+      <pose frame=''>0 0 0.6 0 0 0</pose> <!-- Adjusted z-coordinate to account for new leg length -->
       <inertial>
         <mass>200</mass>
         <inertia>
@@ -40,17 +40,17 @@ SOFTWARE.
           <iyz>0</iyz>
           <izz>8.235</izz>
         </inertia>
-        <pose frame=''>0 0 0.145 0 0 0</pose>
+        <pose frame=''>0 0 0 0 0 0</pose>
       </inertial>
       <gravity>1</gravity>
       <self_collide>0</self_collide>
       <kinematic>0</kinematic>
 
       <visual name='table_top_visual'>
-        <pose frame=''>0 0 0.145 0 0 0</pose>
+        <pose frame=''>0 0 0 0 0 0</pose>
         <geometry>
           <box>
-            <size>4 0.72 0.29</size> <!-- Changed length to 4 -->
+            <size>4 0.72 0.3</size> <!-- Changed length to 4 -->
           </box>
         </geometry>
         <material>
@@ -64,10 +64,10 @@ SOFTWARE.
       </visual>
       <collision name='table_top_collision'>
         <laser_retro>0</laser_retro>
-        <pose frame=''>0 0 0.145 0 0 0</pose>
+        <pose frame=''>0 0 0 0 0 0</pose>
         <geometry>
           <box>
-            <size>4 0.72 0.29</size> <!-- Changed length to 4 -->
+            <size>4 0.72 0.3</size> <!-- Changed length to 4 -->
           </box>
         </geometry>
         <surface>

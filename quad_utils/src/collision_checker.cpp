@@ -11,8 +11,10 @@ bool CollisionChecker::isInCollision(const geometry_msgs::Point& point) const {
     //ROS_INFO("CCHECKER boxes size: %d", boxes.size());
     // Check if the point is within any bounding box
     for (const auto& [link_name, box] : boxes) {
-        //ROS_INFO("box.min_x: %f box.max_x: %f box.min_y: %f box.max_y: %f", box.min_x, box.max_x, box.min_y, box.max_y);	
-        if (point.x >= box.min_x-0.03 && point.x <= box.max_x+0.03 && point.y >= box.min_y-0.03 && point.y <= box.max_y+0.03) {
+        // std::cout << "Link name: " << link_name << std::endl;
+        // std::cout << "boxmax.z: " << box.max_z << " boxmin z: " << box.min_z << " point.x: " << point.x << " box.min_x: " << box.min_x
+        // << " box.max_x: " << box.max_x << " point.y: " << point.y << " box.min_y: " << box.min_y << " box.max_y: " << box.max_y << std::endl;
+        if (box.min_z-0.03 < 0.13 && point.x >= box.min_x-0.03 && point.x <= box.max_x+0.03 && point.y >= box.min_y-0.03 && point.y <= box.max_y+0.03) {
             ROS_WARN_STREAM("Collision detected with link: " << link_name);
             return true; // Point is inside a bounding box
         }
@@ -36,20 +38,20 @@ double CollisionChecker::isInCollisionZ(double z, const double& h_min, const dou
     for (const auto& [link_name, box] : boxes) {
         if (link_name == "table_top"){
             std::cout << "box min: " << box.min_z << std::endl; 
-            if (z >= box.min_z-0.1 && z <= box.max_z+0.1) {
+            if (z >= box.min_z-0.03 && z <= box.max_z+0.03) {
                 std::cout << "h_nom collided" << std::endl;
                 collided = true; // Point is inside a bounding box
             }
 
             if (collided){
                 std::cout << "Checking h_min: " << h_min << " boxmin: " << box.min_z << std::endl;
-                if (h_min < box.min_z-0.1){
+                if (h_min < box.min_z-0.03){
                     std::cout << "h_min passed: " << h_min << " box: " << box.min_z << std::endl;
                     z = 0.13;
                     collided = false;
                     break;
                 }
-            }
+            } 
             
             // if (collided){
             //     std::cout << "Checking h_max" << std::endl;

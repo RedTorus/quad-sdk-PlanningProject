@@ -8,13 +8,14 @@ local_z = []
 ground_truth_z = []
 
 # Maximum number of points to display
-MAX_POINTS = 100
+MAX_POINTS = 1000
 
 # Callback for global planner
 def callback1(msg):
     global global_z
     if msg.states:  # Ensure there are states in the message
         for state in msg.states:
+            print("Global z: ", state.body.pose.position.z)
             z_value = state.body.pose.position.z
             global_z.append(z_value)
             if len(global_z) > MAX_POINTS:  # Keep the list size manageable
@@ -65,7 +66,7 @@ if __name__ == '__main__':
     
     # Subscribe to topics
     rospy.Subscriber('/robot_1/global_plan', RobotPlan, callback1)
-    rospy.Subscriber('/robot_1/global_plan_discrete', RobotPlan, callback2)
+    rospy.Subscriber('/robot_1/local_plan', RobotPlan, callback2)
     rospy.Subscriber('/robot_1/state/ground_truth', RobotState, callback3)
 
     # Start plotting

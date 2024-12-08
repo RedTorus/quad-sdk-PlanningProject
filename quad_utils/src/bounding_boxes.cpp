@@ -38,6 +38,9 @@ BoundingBox BoundingBoxes::computeBoundingBox(const gazebo_msgs::LinkState& link
     bbox.min_z = position.z - size.height / 2.0;
     bbox.max_z = position.z + size.height / 2.0;
 
+    // std::cout << "BB position.z: " << position.z << " BB size.height: " << size.height << std::endl;
+    // std::cout << "BB minz: " << bbox.min_z << " BB maxz: " << bbox.max_z << std::endl;
+
     return bbox;
 }
 

@@ -16,7 +16,10 @@ int GBPL::connect(PlannerClass &T, State s, const PlannerConfig &planner_config,
   int connect_result =
       attemptConnect(s_near, s, result, planner_config, direction);
   if (connect_result != TRAPPED) {
-    int s_new_index = T.getNumVertices();
+    std::cout << "result.s_new in connect: " << result.s_new.pos[2] << std::endl;
+    isValidZ(result.s_new, planner_config, LEAP_STANCE);
+    std::cout << "changing z in connect: " << result.s_new.pos[2] << std::endl;
+    int s_new_index = T.getNumVertices(); 
     T.addVertex(s_new_index, result.s_new);
     T.addEdge(s_near_index, s_new_index, result.length);
     T.addAction(s_new_index, result.a_new);
@@ -226,9 +229,10 @@ int GBPL::findPlan(const PlannerConfig &planner_config, State s_start,
     // std::cout << "*********************************" << std::endl;
     std::cout << "findPlan Z: " << s_rand.pos[2] << " X: " << s_rand.pos[0] << " Y: " << s_rand.pos[1] << std::endl;
     if (isValidState(s_rand, planner_config, LEAP_STANCE) && isValidZ(s_rand, planner_config, LEAP_STANCE)) {
-      // std::cout << "after isValid Z: " << s_rand.pos[2] << std::endl;
+      std::cout << "after isValid Z: " << s_rand.pos[2] << std::endl;
       if (extend(Ta, s_rand, planner_config, FORWARD, tree_pub) != TRAPPED) {
         State s_new = Ta.getVertex(Ta.getNumVertices() - 1);
+        std::cout << "Getting s_new from the tree after extend: " << s_new.pos[2] << std::endl;
 
 #ifdef VISUALIZE_TREE
         Action a_new = Ta.getAction(Ta.getNumVertices() - 1);
@@ -253,9 +257,10 @@ int GBPL::findPlan(const PlannerConfig &planner_config, State s_start,
     s_rand = Tb.randomState(planner_config);
     std::cout << "findPlan Z 2: " << s_rand.pos[2] << " X: " << s_rand.pos[0] << " Y: " << s_rand.pos[1] << std::endl;
     if (isValidState(s_rand, planner_config, LEAP_STANCE) && isValidZ(s_rand, planner_config, LEAP_STANCE)) {
-      // std::cout << "after isValid Z: " << s_rand.pos[2] << std::endl;
+      std::cout << "after isValid Z 2: " << s_rand.pos[2] << std::endl;
       if (extend(Tb, s_rand, planner_config, FORWARD, tree_pub) != TRAPPED) {
         State s_new = Tb.getVertex(Tb.getNumVertices() - 1);
+        std::cout << "Getting s_new from the tree after extend 2: " << s_new.pos[2] << std::endl;
 
 #ifdef VISUALIZE_TREE
         Action a_new = Tb.getAction(Tb.getNumVertices() - 1);

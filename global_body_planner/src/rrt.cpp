@@ -18,6 +18,9 @@ bool RRT::newConfig(State s, State s_near, StateActionResult &result,
   int connect_result =
       attemptConnect(s_near, s, current_result, planner_config, direction);
   if (connect_result != TRAPPED) {
+    std::cout << "result.s_new in extend: " << result.s_new.pos[2] << std::endl;
+    isValidZ(current_result.s_new, planner_config, LEAP_STANCE);
+    std::cout << "changing z in extend: " << result.s_new.pos[2] << std::endl;
     double current_dist = stateDistance(current_result.s_new, s);
 
     if (current_dist < best_so_far) {
@@ -169,6 +172,9 @@ int RRT::extend(PlannerClass &T, const State &s,
   StateActionResult result;
 
   if (newConfig(s, s_near, result, planner_config, direction, tree_pub)) {
+    std::cout << "result.s_new in extend: " << result.s_new.pos[2] << std::endl;
+    isValidZ(result.s_new, planner_config, LEAP_STANCE);
+    std::cout << "changing z in extend: " << result.s_new.pos[2] << std::endl;
     int s_new_index = T.getNumVertices();
     T.addVertex(s_new_index, result.s_new);
     T.addEdge(s_near_index, s_new_index, result.length);
