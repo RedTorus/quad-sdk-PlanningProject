@@ -869,6 +869,8 @@ namespace planning_utils
   bool isValidState(const State &s, const PlannerConfig &planner_config,
                     int phase, double &max_height);
 
+  bool isValidZ(State &s, const PlannerConfig &planner_config);
+
   // Trajectory validity checking
   /**
    * @brief Check the validity of the whole trajectory

@@ -1105,6 +1105,35 @@ namespace planning_utils
     return true;
   }
 
+bool isValidZ(State &s, const PlannerConfig &planner_config)
+  {
+    static double prev_z = s.pos[2];
+    // Check each of the four corners of the robot
+    ros::NodeHandle nh;
+    std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";
+    BoundingBoxes bounding_boxes(nh, yaml_file_path);
+    std::unordered_map<std::string, BoundingBox> BB = bounding_boxes.getBoundingBoxes();
+    CollisionChecker collision_checker(bounding_boxes);
+
+    // Check collision in z
+    double z = collision_checker.isInCollisionZ(s.pos[2], planner_config.h_min, planner_config.h_max);
+    if (z != 0){
+      // std::cout << "z modified: " << z << " prev_z: " << prev_z << std::endl;
+      // if (z - prev_z > 0.02){
+      //   std::cout << "Delta greater" << std::endl;
+      //   z = prev_z;
+      // }
+      s.pos[2] = z;
+      // std::cout << "z FINAL: " << z << std::endl;
+      // prev_z = z;
+    }
+    else{
+      return false;
+    }
+
+    return true;
+  }
+
   bool isValidStateActionPair(const State &s_in, const Action &a,
                               StateActionResult &result,
                               const PlannerConfig &planner_config)

@@ -237,7 +237,7 @@ bool GlobalBodyPlanner::callPlanner() {
     std::vector<Action> action_sequence;
 
     // Call the planner method
-    int plan_status = gbpl.findPlan(planner_config_, start_state, goal_state,
+    int plan_status = gbpl.findPlan2(planner_config_, start_state, goal_state,
                                     state_sequence, action_sequence, tree_pub_);
     newest_plan_.setComputedTimestamp(ros::Time::now());
 

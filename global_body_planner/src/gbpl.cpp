@@ -348,9 +348,17 @@ int GBPL::findPlan2(const PlannerConfig &planner_config, State s_start,
   state_sequence = G.retrieveStateSequence(path);
   action_sequence = G.retrieveActionSequence(path);
   ROS_INFO("------------Retrieved state and action sequences");
+  for (auto x : state_sequence){
+    ROS_INFO("State: %f %f %f", x.pos[0], x.pos[1], x.pos[2]);
+  }
 
-  postProcessPath(state_sequence, action_sequence, planner_config);
+  // postProcessPath(state_sequence, action_sequence, planner_config);
   
+  // for (auto x : state_sequence){
+  //   std::cout << "After post processing: " << x.pos[0] << " " << x.pos[1] << " " << x.pos[2] << std::endl;
+  //   std::cout << "State seq size: " << state_sequence.size() << std::endl;
+  // }
+
   path_length_ = 0.0;
   path_duration_ = 0.0;
   for (Action a : action_sequence) {

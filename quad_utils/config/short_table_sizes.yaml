@@ -1,7 +1,7 @@
 table_top:
-  length: 0.72
+  length: 4
   width: 0.72
-  height: 0.15
+  height: 0.3
 
 leg1:
   length: 0.05

@@ -27,6 +27,15 @@ void PRM::buildRoadmap(PRM_PlannerClass &G, const PlannerConfig &planner_config,
         {
             continue;
         }
+        // std::cout << "Checked isValidState: " << random_state.pos[2] << std::endl;
+        if (!isValidZ(random_state, planner_config))
+        {
+            // std::cout << "Z failed" << std::endl;
+            continue;
+        }
+
+        // std::cout << "GG: " << random_state.pos[2] << std::endl;
+
         int s_new_index = G.getNumVertices();
         G.addVertex(s_new_index, random_state);
         updateDistHeuristic(G, planner_config, random_state, s_new_index, goal);
@@ -39,7 +48,7 @@ void PRM::buildRoadmap(PRM_PlannerClass &G, const PlannerConfig &planner_config,
 
         if (i%1000 == 0)
         {
-            ROS_INFO("Sampled %d states", i);
+            // ROS_INFO("Sampled %d states", i);
         }	
 
         for (int neighbor : neighbors)
