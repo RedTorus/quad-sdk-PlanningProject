@@ -90,6 +90,77 @@ bool RRT::newConfig(State s, State s_near, StateActionResult &result,
   }
 }
 
+int RRT::attemptConnect2(const State &s_existing, const State &s, double t_s,
+                        StateActionResult &result,
+                        const PlannerConfig &planner_config, int direction, bool &check) {
+  // Enforce stance time greater than the kinematic check resolution to ensure
+  // that the action is useful
+  if (t_s <= planner_config.trapped_buffer_factor * planner_config.dt)
+    return TRAPPED;
+
+  // Initialize the start and goal states depending on the direction, as well as
+  // the stance and flight times
+  State s_start = (direction == FORWARD) ? s_existing : s;
+  State s_goal = (direction == FORWARD) ? s : s_existing;
+  double t_f = 0;
+
+  // Update the vertical component of velocities to match the terrain
+  setDz(s_start, planner_config);
+  setDz(s_goal, planner_config);
+
+  // Compute accelerations at start and end of the behavior
+  Eigen::Vector3d acc_0 =
+      -(2.0 * (3.0 * s_start.pos - 3.0 * s_goal.pos + 2.0 * s_start.vel * t_s +
+               s_goal.vel * t_s)) /
+      (t_s * t_s);
+  Eigen::Vector3d acc_f = (2.0 * (3.0 * s_start.pos - 3.0 * s_goal.pos +
+                                  s_start.vel * t_s + 2.0 * s_goal.vel * t_s)) /
+                          (t_s * t_s);
+
+  // Transform from accelerations to body weight grfs
+  result.a_new.grf_0 = (acc_0 - planner_config.g_vec) / planner_config.g;
+  result.a_new.grf_f = (acc_f - planner_config.g_vec) / planner_config.g;
+
+  // Set the vertical component of accel to contain height above terrain
+  result.a_new.grf_0[2] =
+      s_start.pos[2] - getTerrainZFilteredFromState(s_start, planner_config);
+  result.a_new.grf_f[2] =
+      s_goal.pos[2] - getTerrainZFilteredFromState(s_goal, planner_config);
+
+  result.a_new.t_s_leap = t_s;
+  result.a_new.t_f = 0;
+  result.a_new.t_s_land = 0;
+  result.a_new.dz_0 = getDzFromState(s_start, planner_config);
+  result.a_new.dz_f = getDzFromState(s_goal, planner_config);
+
+  // If the connection results in an infeasible action, abort and return trapped
+  if (isValidAction(result.a_new, planner_config)) {
+    // If valid, great, return REACHED, otherwise try again to the valid state
+    // returned by isValidStateActionPair
+    if (isValidStateActionPair2(s_start, result.a_new, result, planner_config, check)) {
+      return REACHED;
+    } else {
+      if (attemptConnect2(s_existing, result.s_new, result.t_new, result,
+                         planner_config, direction, check) == TRAPPED)
+        return TRAPPED;
+      else
+        return ADVANCED;
+    }
+  }
+
+  return TRAPPED;
+}
+
+int RRT::attemptConnect2(const State &s_existing, const State &s,
+                        StateActionResult &result,
+                        const PlannerConfig &planner_config, int direction, bool &check) {
+  // select desired stance time to enforce a nominal stance velocity
+  double t_s = 6.0 * poseDistance(s, s_existing) /
+               ((s_existing.vel + s.vel).norm() + 4.0 * planner_config.v_nom);
+
+  return attemptConnect2(s_existing, s, t_s, result, planner_config, direction, check);
+}
+
 int RRT::attemptConnect(const State &s_existing, const State &s, double t_s,
                         StateActionResult &result,
                         const PlannerConfig &planner_config, int direction) {

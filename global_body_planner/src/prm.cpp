@@ -16,6 +16,7 @@ void PRM::buildRoadmap(PRM_PlannerClass &G, const PlannerConfig &planner_config,
 {   
     auto start_time = std::chrono::steady_clock::now(); // Start timing
     StateActionResult result;
+    bool check=false;
     State goal = G.getVertex(1);
     G.updateGValue(1, std::numeric_limits<double>::max()-10);
     G.updateGValue(0, 0);
@@ -23,7 +24,7 @@ void PRM::buildRoadmap(PRM_PlannerClass &G, const PlannerConfig &planner_config,
     {
         State random_state = samplePoint(G, planner_config);
 
-        if ((!isValidState(random_state, planner_config, LEAP_STANCE)) || (IsInGraph(random_state, G, planner_config)))
+        if ((!isValidState2(random_state, planner_config, LEAP_STANCE, check)) || (IsInGraph(random_state, G, planner_config)))
         {
             continue;
         }
@@ -45,14 +46,14 @@ void PRM::buildRoadmap(PRM_PlannerClass &G, const PlannerConfig &planner_config,
         for (int neighbor : neighbors)
         {
             State neighbor_state = G.getVertex(neighbor);
-            if (calculateDirectAction(neighbor_state, random_state, result, planner_config))
+            if (calculateDirectAction(neighbor_state, random_state, result, planner_config, check))
             {
                 G.addEdge(s_new_index, neighbor, 0.0); // do not want edge cost for now edge len result.distance
                 G.actions[{neighbor, s_new_index}] = result.a_new;
                 // G.actions[{s_new_index, neighbor}] = flipDirection(a)
             }
 
-            if (calculateDirectAction(random_state, neighbor_state, result, planner_config))
+            if (calculateDirectAction(random_state, neighbor_state, result, planner_config, check))
             {
                 G.addEdge(neighbor, s_new_index, 0.0);
                 G.actions[{s_new_index, neighbor}] = result.a_new;
@@ -66,15 +67,15 @@ void PRM::buildRoadmap(PRM_PlannerClass &G, const PlannerConfig &planner_config,
     ROS_INFO("Number of nodes in PRM: %d", G.getNumVertices());
 }
 
-bool PRM::GetAction(State start, State s, StateActionResult &result, const PlannerConfig &planner_config)
+bool PRM::GetAction(State start, State s, StateActionResult &result, const PlannerConfig &planner_config, bool &check)
 {
     // Implement validity checking logic
     
-    if (calculateDirectAction(start, s, result, planner_config))
+    if (calculateDirectAction(start, s, result, planner_config, check))
     {
         return true;
     }
-    else if (sampleLeapAction(start, s, result, planner_config))
+    else if (sampleLeapAction(start, s, result, planner_config, check))
     {
         return true;
     }
@@ -97,7 +98,7 @@ State PRM::samplePoint(PRM_PlannerClass &G, const PlannerConfig &planner_config)
     return G.randomState(planner_config);
 }
 
-bool PRM::calculateDirectAction(const State &s_start, const State &s_goal, StateActionResult &result, const PlannerConfig &planner_config)
+bool PRM::calculateDirectAction(const State &s_start, const State &s_goal, StateActionResult &result, const PlannerConfig &planner_config, bool &check)
 {
     // Calculate the stance time based on the distance and velocities
     double t_s = 6.0 * poseDistance(s_start, s_goal) /
@@ -131,7 +132,7 @@ bool PRM::calculateDirectAction(const State &s_start, const State &s_goal, State
     if (isValidAction(result.a_new, planner_config))
     {
         // Validate the state-action pair
-        if (isValidStateActionPair(s_start, result.a_new, result, planner_config))
+        if (isValidStateActionPair2(s_start, result.a_new, result, planner_config, check))
         {
             return true;
         }
@@ -140,7 +141,7 @@ bool PRM::calculateDirectAction(const State &s_start, const State &s_goal, State
     return false;
 }
 
-bool PRM::sampleLeapAction(const State &s_start, const State &s_goal, StateActionResult &result, const PlannerConfig &planner_config)
+bool PRM::sampleLeapAction(const State &s_start, const State &s_goal, StateActionResult &result, const PlannerConfig &planner_config, bool &check)
 {
     Eigen::Vector3d surf_norm = getSurfaceNormalFiltered(s_start, planner_config);
 
@@ -160,7 +161,7 @@ bool PRM::sampleLeapAction(const State &s_start, const State &s_goal, StateActio
 
         for (int j = 0; j < planner_config.num_leap_samples; ++j)
         {
-            bool is_valid = isValidStateActionPair(s_start, a_test, result, planner_config);
+            bool is_valid = isValidStateActionPair2(s_start, a_test, result, planner_config, check);
             if (is_valid)
             {
                 valid_state_found = true;
@@ -218,7 +219,7 @@ std::vector<int> PRM::GetNeighbors(PRM_PlannerClass &G, const State &state, cons
     return G.neighborhoodDist(state, epsilon); 
 }
 
-std::vector<int> PRM::Astar(PRM_PlannerClass &G, const double &epsilon) {
+std::vector<int> PRM::Astar(PRM_PlannerClass &G, const double &epsilon, const PlannerConfig &planner_config) {
     auto start_time = std::chrono::steady_clock::now();
     std::vector<int> path;
     auto compare = [&G](int lhs, int rhs) {
@@ -227,7 +228,7 @@ std::vector<int> PRM::Astar(PRM_PlannerClass &G, const double &epsilon) {
     std::priority_queue<int, std::vector<int>, decltype(compare)> open(compare);
     std::unordered_set<int> open_set;
     std::unordered_set<int> closed;
-
+    bool check=true;
     int start = 0;
     G.g_values[start] = 0;
     open.push(start);
@@ -255,6 +256,85 @@ std::vector<int> PRM::Astar(PRM_PlannerClass &G, const double &epsilon) {
             if( neighbor == 1){
                 //ROS_INFO("--------Goal found");
                 //break;
+            }
+
+            if (!isValidState2(G.getVertex(neighbor), planner_config, LEAP_STANCE, check)) {
+                continue;
+            }
+
+            if ((G.g_values[neighbor] > G.g_values[current] + stateDistance(G.getVertex(current), G.getVertex(neighbor)))&& a){
+                G.g_values[neighbor] = G.g_values[current] + stateDistance(G.getVertex(current), G.getVertex(neighbor));
+                G.parents[neighbor] = current;
+                if(open_set.find(neighbor) == open_set.end()){
+                    open.push(neighbor);
+                    open_set.insert(neighbor);
+                }
+            }
+
+        }
+    }
+    if (current != 1){
+        ROS_ERROR("Goal not found");
+        throw std::runtime_error("Goal not found");
+    }
+    while(current != start){
+        path.push_back(current);
+        current = G.parents[current];
+    }
+    path.push_back(start);
+    std::reverse(path.begin(), path.end());
+    ROS_INFO("---------Path found");
+
+    auto end_time = std::chrono::steady_clock::now(); // End timing
+    std::chrono::duration<double> elapsed_seconds = end_time - start_time;
+    ROS_INFO("Astar completed in %f seconds", elapsed_seconds.count());
+    ROS_INFO("Cost of Astar (g value of goal): %f", G.g_values[1]);
+    ROS_INFO("Number of nodes in closed list: %d", closed.size());
+    return path;
+
+}
+
+std::vector<int> PRM::WAstar(PRM_PlannerClass &G, const double &epsilon, const double &w, const PlannerConfig &planner_config) {
+    auto start_time = std::chrono::steady_clock::now();
+    std::vector<int> path;
+    auto compare = [&G, w](int lhs, int rhs) {
+        return G.g_values[lhs] + w*G.h_dist[lhs] > G.g_values[rhs] + w*G.h_dist[rhs];
+    };
+    std::priority_queue<int, std::vector<int>, decltype(compare)> open(compare);
+    std::unordered_set<int> open_set;
+    std::unordered_set<int> closed;
+    bool check=true;
+    int start = 0;
+    G.g_values[start] = 0;
+    open.push(start);
+    open_set.insert(start);
+    int current= start;
+    while(!open.empty()){
+
+        current  = open.top();
+        open.pop();
+        open_set.erase(current);
+        closed.insert(current);
+
+        if(current == 1){
+            ROS_INFO("--------Goal reached");
+            break;
+        }
+
+        std::vector<int> neighbors = GetNeighbors(G, G.getVertex(current), epsilon);
+        for(int neighbor : neighbors){
+            bool a = checkConnection(G, current, neighbor);
+            /* auto it = G.actions.find({current, neighbor});
+            if (it != G.actions.end()) {
+                continue;
+            } */
+            if( neighbor == 1){
+                //ROS_INFO("--------Goal found");
+                //break;
+            }
+
+            if (!isValidState2(G.getVertex(neighbor), planner_config, LEAP_STANCE, check)) {
+                continue;
             }
 
             if ((G.g_values[neighbor] > G.g_values[current] + stateDistance(G.getVertex(current), G.getVertex(neighbor)))&& a){

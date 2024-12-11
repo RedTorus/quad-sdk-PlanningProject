@@ -43,6 +43,79 @@ std::vector<Action> GBPL::getActionSequenceReverse(PlannerClass &T,
   return action_sequence;
 }
 
+void GBPL::postProcessPath2(std::vector<State> &state_sequence,
+                           std::vector<Action> &action_sequence,
+                           const PlannerConfig &planner_config, bool &check) {
+  auto t_start = std::chrono::steady_clock::now();
+
+  // Initialize first and last states
+  State s_goal = state_sequence.back();
+  State s = state_sequence.front();
+  State s_next;
+  State dummy;
+  Action a_new;
+  Action a_next;
+
+  // Initialize state and action sequences
+  std::vector<State> new_state_sequence;
+  new_state_sequence.push_back(s);
+  std::vector<Action> new_action_sequence;
+  path_length_ = 0;
+
+  // Iterate until the goal has been added to the state sequence
+  while (s != s_goal) {
+    // Make a copy of the original state and action sequences
+    std::vector<State> state_sequence_copy = state_sequence;
+    std::vector<Action> action_sequence_copy = action_sequence;
+
+    // Start at the back of the sequence
+    s_next = state_sequence_copy.back();
+    a_next = action_sequence_copy.back();
+    State old_state;
+    Action old_action;
+    StateActionResult result;
+
+    // Try to connect to the last state in the sequence
+    // if unsuccesful remove the back and try again until successful or no
+    // states left
+    while ((attemptConnect2(s, s_next, result, planner_config, FORWARD, check) !=
+            REACHED) &&
+           (s != s_next)) {
+      old_state = s_next;
+      old_action = a_next;
+      state_sequence_copy.pop_back();
+      action_sequence_copy.pop_back();
+      s_next = state_sequence_copy.back();
+      a_next = action_sequence_copy.back();
+    }
+
+    // If a new state was found add it to the sequence, otherwise add the next
+    // state in the original sequence
+    if (s != s_next) {
+      new_state_sequence.push_back(s_next);
+      new_action_sequence.push_back(result.a_new);
+      path_length_ += result.length;
+      s = s_next;
+
+    } else {
+      new_state_sequence.push_back(old_state);
+      new_action_sequence.push_back(old_action);
+
+      // Recompute path length
+      isValidStateActionPair2(old_state, old_action, result, planner_config, check);
+      path_length_ += result.length;
+      s = old_state;
+    }
+  }
+
+  // Replace the old state and action sequences with the new ones
+  state_sequence = new_state_sequence;
+  action_sequence = new_action_sequence;
+
+  auto t_end = std::chrono::steady_clock::now();
+  std::chrono::duration<double> processing_time = t_end - t_start;
+}
+
 void GBPL::postProcessPath(std::vector<State> &state_sequence,
                            std::vector<Action> &action_sequence,
                            const PlannerConfig &planner_config) {
@@ -102,7 +175,7 @@ void GBPL::postProcessPath(std::vector<State> &state_sequence,
       new_action_sequence.push_back(old_action);
 
       // Recompute path length
-      isValidStateActionPair(old_state, old_action, result, planner_config);
+      isValidStateActionPair2(old_state, old_action, result, planner_config, true);
       path_length_ += result.length;
       s = old_state;
     }
@@ -319,13 +392,13 @@ int GBPL::findPlan2(const PlannerConfig &planner_config, State s_start,
                    std::vector<Action> &action_sequence,
                    ros::Publisher &tree_pub) {
   // Perform validity checking on start and goal states
-  if (!isValidState(s_start, planner_config, LEAP_STANCE)) {
+  if (!isValidState2(s_start, planner_config, LEAP_STANCE, true)) {
     return INVALID_START_STATE;}  
 
   // Set goal height to nominal distance above terrain
   s_goal.pos[2] =
       getTerrainZFromState(s_goal, planner_config) + planner_config.h_nom;
-  if (!isValidState(s_goal, planner_config, LEAP_STANCE)) {
+  if (!isValidState2(s_goal, planner_config, LEAP_STANCE, true)) {
     return INVALID_GOAL_STATE;
   }
   if (poseDistance(s_start, s_goal) <= 1e-1) {
@@ -336,9 +409,9 @@ int GBPL::findPlan2(const PlannerConfig &planner_config, State s_start,
   G.addVertex(0, s_start);
   G.addVertex(1, s_goal);
   PRM prm;
-  prm.buildRoadmap(G, planner_config, 6000, 0.8);
+  prm.buildRoadmap(G, planner_config, 20000, 0.65);
   ROS_INFO("------------Built roadmap");
-  std::vector<int> path = prm.Astar(G, 0.7);
+  std::vector<int> path = prm.WAstar(G, 0.65, 2.0, planner_config);
   if(path.size() == 0){
     ROS_WARN("------------Astar failed");
     return UNSOLVED;
@@ -348,8 +421,9 @@ int GBPL::findPlan2(const PlannerConfig &planner_config, State s_start,
   state_sequence = G.retrieveStateSequence(path);
   action_sequence = G.retrieveActionSequence(path);
   ROS_INFO("------------Retrieved state and action sequences");
+  bool check = true;
 
-  postProcessPath(state_sequence, action_sequence, planner_config);
+  postProcessPath2(state_sequence, action_sequence, planner_config, check);
   
   path_length_ = 0.0;
   path_duration_ = 0.0;

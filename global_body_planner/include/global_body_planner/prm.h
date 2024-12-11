@@ -24,23 +24,23 @@ public:
     // Method to build the roadmap
     void buildRoadmap(PRM_PlannerClass &G, const PlannerConfig &planner_config, const int &num_samples, const double &epsilon);
 
-    bool GetAction(State start, State s, StateActionResult &result, const PlannerConfig &planner_config);
+    bool GetAction(State start, State s, StateActionResult &result, const PlannerConfig &planner_config, bool &check);
 
     // Method to find a path from start to goal
     std::vector<int> findPath(int start, int goal);
 
-    std::vector<int> Astar(PRM_PlannerClass &G, const double &epsilon);
+    std::vector<int> Astar(PRM_PlannerClass &G, const double &epsilon, const PlannerConfig &planner_config);
 
-    
+    std::vector<int> WAstar(PRM_PlannerClass &G, const double &epsilon, const double &w, const PlannerConfig &planner_config);
 
 
 protected:
     // Method to sample random points
     State samplePoint(PRM_PlannerClass &G, const PlannerConfig &planner_config);
 
-    bool calculateDirectAction(const State &s_start, const State &s_goal, StateActionResult &result, const PlannerConfig &planner_config);
+    bool calculateDirectAction(const State &s_start, const State &s_goal, StateActionResult &result, const PlannerConfig &planner_config, bool &check);
 
-    bool sampleLeapAction(const State &s_start, const State &s_goal, StateActionResult &result, const PlannerConfig &planner_config);
+    bool sampleLeapAction(const State &s_start, const State &s_goal, StateActionResult &result, const PlannerConfig &planner_config, bool &check);
 
     bool IsInGraph(const State &s, PRM_PlannerClass &G, const PlannerConfig &planner_config);
 

@@ -908,16 +908,18 @@ namespace planning_utils
     return true;
   }
 
-  bool isValidState(const State &s, const PlannerConfig &planner_config,
-                    int phase)
+  bool isValidState2(const State &s, const PlannerConfig &planner_config,
+                    int phase, bool check)
   {
     double dummy_max_valid_z = 0;
-    return isValidState(s, planner_config, phase, dummy_max_valid_z);
+    //ROS_INFO("----------check: %d", check);
+    return isValidState2(s, planner_config, phase, dummy_max_valid_z, check);
   }
 
-  bool isValidState(const State &s, const PlannerConfig &planner_config,
-                    int phase, double &max_valid_z)
+  bool isValidState2(const State &s, const PlannerConfig &planner_config,
+                    int phase, double &max_valid_z, bool check)
   {
+    //ROS_INFO("----------check: %d", check);
     // Check elevation independent constraints first (out of range, velocity)
     if (!isInMap(s, planner_config))
     {
@@ -972,10 +974,6 @@ namespace planning_utils
 
     // Check each of the four corners of the robot
     ros::NodeHandle nh;
-    planner_config.vel_collision.x() = 0.07;
-    planner_config.vel_collision.y() = 0.12;
-    planner_config.vel_collision.z() = 0;
-    planner_config.dt_collision = 12;
     /* std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";//"/config/box_sizes.yaml";
     BoundingBoxes bounding_boxes(nh, yaml_file_path);
     std::unordered_map<std::string, BoundingBox> BB = bounding_boxes.getBoundingBoxes();
@@ -1005,16 +1003,13 @@ namespace planning_utils
       std::string yaml_name = planner_config.yaml;
       // ROS_INFO("PUTILS yaml_name: %s", yaml_name.c_str());
       // ROS_INFO("PUTILS bounding_boxes: %d", planner_config.BB.size());
-      // if (planner_config.collision_checker->isInCollision(point_msg))
-      // {
-      //   //ROS_WARN_STREAM("State in collision with obstacle!");
-      //   return false; // Invalid state due to collision
-      // }
-
-      if (planner_config.collision_checker->isInExpandedCollision(point_msg, planner_config.vel_collision, planner_config.dt_collision))
-      {
-        //ROS_WARN_STREAM("State in collision with obstacle!");
-        return false; // Invalid state due to collision
+      if (check){
+        //ROS_INFO("----------DOING COLLISION CHECK");
+        if (planner_config.collision_checker->isInCollision(point_msg))
+        {
+          //ROS_WARN_STREAM("State in collision with obstacle!");
+          return false; // Invalid state due to collision
+        }
       }
 
       double collision_clearance =
@@ -1114,6 +1109,363 @@ namespace planning_utils
 
     return true;
   }
+
+
+  bool isValidState(const State &s, const PlannerConfig &planner_config,
+                    int phase)
+  {
+    double dummy_max_valid_z = 0;
+    return isValidState(s, planner_config, phase, dummy_max_valid_z);
+  }
+
+  bool isValidState(const State &s, const PlannerConfig &planner_config,
+                    int phase, double &max_valid_z)
+  {
+    ROS_INFO("----------isValidState calläd");
+    // Check elevation independent constraints first (out of range, velocity)
+    if (!isInMap(s, planner_config))
+    {
+#ifdef DEBUG_INVALID_STATE
+      printf("Out of terrain range, phase = %d\n", phase);
+      printStateNewline(s);
+#endif
+      return false;
+    }
+
+    // Ensure body is over traversable terrain unless in flight or leaping
+    // disabled
+    if (!isTraversable(s.pos, planner_config) && phase != FLIGHT &&
+        planner_config.enable_leaping)
+    {
+#ifdef DEBUG_INVALID_STATE
+      printf("!isContactTraversable, phase = %d\n", phase);
+      printStateNewline(s);
+#endif
+      return false;
+    }
+
+    if (s.vel.head<2>().norm() >
+        planner_config.v_max)
+    { // Ignore limit on vertical velocity since this
+      // is accurately bounded by gravity
+#ifdef DEBUG_INVALID_STATE
+      printf("v_max exceeded, phase = %d\n", phase);
+      printStateNewline(s);
+#endif
+      return false;
+    }
+
+    // Find yaw, pitch, and their sines and cosines
+    // TODO(jcnorby): Add getRollFromState
+    double yaw = atan2(s.vel[1], s.vel[0]);
+    double cy = cos(yaw);
+    double sy = sin(yaw);
+    double pitch = getPitchFromState(s, planner_config);
+    double cp = cos(pitch);
+    double sp = sin(pitch);
+
+    // Compute each element of the rotation matrix
+    Eigen::Matrix3d R_mat;
+    R_mat << cy * cp, -sy, cy * sp, sy * cp, cy, sy * sp, -sp, 0, cp;
+
+    // Compute the collision points in the world frame
+    Eigen::Matrix<double, 3, planner_config.num_collision_points>
+        collision_points_world =
+            R_mat * planner_config.collision_points_body +
+            s.pos.replicate(1, planner_config.num_collision_points);
+
+    // Check each of the four corners of the robot
+    ros::NodeHandle nh;
+    planner_config.vel_collision.x() = 0.07;
+    planner_config.vel_collision.y() = 0.12;
+    planner_config.vel_collision.z() = 0;
+    planner_config.dt_collision = 12;
+    /* std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";//"/config/box_sizes.yaml";
+    BoundingBoxes bounding_boxes(nh, yaml_file_path);
+    std::unordered_map<std::string, BoundingBox> BB = bounding_boxes.getBoundingBoxes();
+    //ROS_INFO("PUTILS bounding_boxes: %d", BB.size());
+    CollisionChecker collision_checker(bounding_boxes); */
+    // ROS_INFO("s.pos: [%f, %f, %f]", s.pos[0], s.pos[1], s.pos[2]);
+    for (int i = 0; i < planner_config.num_collision_points; i++)
+    {
+      Eigen::Vector3d collision_point = collision_points_world.col(i);
+      if (!isInMap(collision_point, planner_config))
+      {
+#ifdef DEBUG_INVALID_STATE
+        printf("collision_point not in map, phase = %d\n", phase);
+        printStateNewline(s);
+#endif
+        return false;
+      }
+
+      // Convert collision_point to geometry_msgs::Point
+      // ROS_INFO("PUTILS collision_point: [%f, %f, %f]", collision_point.x(), collision_point.y(), collision_point.z());
+      geometry_msgs::Point point_msg;
+      point_msg.x = collision_point.x();
+      point_msg.y = collision_point.y();
+      point_msg.z = collision_point.z();
+
+      // Check collision with obstacles using isInCollision
+      std::string yaml_name = planner_config.yaml;
+      // ROS_INFO("PUTILS yaml_name: %s", yaml_name.c_str());
+      // ROS_INFO("PUTILS bounding_boxes: %d", planner_config.BB.size());
+<<<<<<< HEAD
+      // if (planner_config.collision_checker->isInCollision(point_msg))
+      // {
+      //   //ROS_WARN_STREAM("State in collision with obstacle!");
+      //   return false; // Invalid state due to collision
+      // }
+
+      if (planner_config.collision_checker->isInExpandedCollision(point_msg, planner_config.vel_collision, planner_config.dt_collision))
+=======
+      
+      /* if (planner_config.collision_checker->isInCollision(point_msg))
+>>>>>>> 00054df0b6ae274e3da94d2abfca17ecfc6d2632
+      {
+        //ROS_WARN_STREAM("State in collision with obstacle!");
+        return false; // Invalid state due to collision
+      } */
+      
+
+      double collision_clearance =
+          getZRelToTerrain(collision_point, planner_config);
+
+      // Check for collision
+      if (collision_clearance < planner_config.h_min)
+      {
+#ifdef DEBUG_INVALID_STATE
+        printf("h_min exceeded for leg, phase = %d\n", phase);
+        printStateNewline(s);
+#endif
+        return false;
+      }
+    }
+
+    // Initialize max_valid_z to infinity (ensures that update will overwrite it)
+    max_valid_z = std::numeric_limits<double>::max();
+
+    // Compute the reachability points in the world frame
+    Eigen::Matrix<double, 3, planner_config.num_reachability_points>
+        reachability_points_world =
+            R_mat * planner_config.reachability_points_body +
+            s.pos.replicate(1, planner_config.num_reachability_points);
+
+    // TODO(jcnorby): allow alternative gaits, check region around foot location
+    for (int i = 0; i < planner_config.num_reachability_points; i++)
+    {
+      Eigen::Vector3d reachability_point = reachability_points_world.col(i);
+      if (!isInMap(reachability_point, planner_config))
+      {
+#ifdef DEBUG_INVALID_STATE
+        printf("reachability_point not in map, phase = %d\n", phase);
+#endif
+        max_valid_z = s.pos[2] + planner_config.h_max -
+                      getZRelToTerrain(reachability_point, planner_config);
+        return false;
+      }
+
+      // Make sure legs are over a valid region of the terrain
+      if (!isTraversable(reachability_point, planner_config) && phase != FLIGHT)
+      {
+        max_valid_z = s.pos[2] + planner_config.h_max -
+                      getZRelToTerrain(reachability_point, planner_config);
+        return false;
+      }
+
+      double reachability_clearance =
+          getZRelToTerrain(reachability_point, planner_config);
+
+      bool is_rear_leg = (i % 2 == 1);
+
+      // Check for reachability
+      if (phase == CONNECT)
+      {
+        max_valid_z = std::min(max_valid_z, s.pos[2] + planner_config.h_max -
+                                                reachability_clearance);
+        if (reachability_clearance > planner_config.h_max)
+        {
+#ifdef DEBUG_INVALID_STATE
+          printf("h_max exceeded, phase = %d\n", phase);
+#endif
+          return false;
+        }
+      }
+      else if (phase == LEAP_STANCE)
+      {
+        if (is_rear_leg)
+        {
+          max_valid_z = std::min(max_valid_z, s.pos[2] + planner_config.h_max -
+                                                  reachability_clearance);
+          if (reachability_clearance > planner_config.h_max)
+          {
+#ifdef DEBUG_INVALID_STATE
+            printf("h_max exceeded, phase = %d\n", phase);
+            printStateNewline(s);
+#endif
+            return false;
+          }
+        }
+      }
+      else if (phase == LAND_STANCE)
+      {
+        // if (!is_rear_leg) {
+        max_valid_z = std::min(max_valid_z, s.pos[2] + planner_config.h_max -
+                                                reachability_clearance);
+        if (reachability_clearance > planner_config.h_max)
+        {
+#ifdef DEBUG_INVALID_STATE
+          printf("h_max exceeded, phase = %d\n", phase);
+          printStateNewline(s);
+#endif
+          return false;
+        }
+      }
+    }
+
+    return true;
+  }
+
+  bool isValidStateActionPair2(const State &s_in, const Action &a,
+                              StateActionResult &result,
+                              const PlannerConfig &planner_config, bool check)
+  {
+    // Declare stance and flight times
+    double t_s = a.t_s_leap;
+    double t_f = a.t_f;
+    double t_s_land = a.t_s_land;
+
+    // Declare states, actions, and lengths for upcoming validity and distance
+    // checks
+    State s = s_in;
+    State s_prev = s;
+    State s_next;
+    result.length = 0;
+    result.s_new = s;
+    result.a_new = a;
+
+    // Initialize phase
+    int phase = (t_f == 0) ? CONNECT : LEAP_STANCE;
+
+    // LEAP (OR CONNECT) ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    double t = 0;
+
+    while (t <= t_s)
+    {
+      // Compute state to check
+      State s_next = applyStance(s, a, t, phase, planner_config);
+
+      if (!isValidState2(s_next, planner_config, phase, check))
+      {
+        result.t_new = (1.0 - planner_config.backup_ratio) * t;
+        result.s_new = applyStance(s, a, result.t_new, phase, planner_config);
+        result.a_new.t_s_leap = result.t_new;
+        result.a_new.t_s_land = std::min(0.001, result.a_new.t_s_land);
+#ifdef DEBUG_INVALID_STATE
+        printf("Invalid leaping stance config\n");
+#endif
+
+        return false;
+      }
+      else
+      {
+        result.length += poseDistance(s_next, s_prev);
+        s_prev = s_next;
+      }
+
+      t += planner_config.dt;
+    }
+
+    State s_takeoff = applyStance(s, a, phase, planner_config);
+
+    if (!isValidState2(s_takeoff, planner_config, phase, check))
+    {
+      result.t_new = (1.0 - planner_config.backup_ratio) * t_s;
+      result.s_new = applyStance(s, a, result.t_new, planner_config);
+      result.a_new.t_f = std::min(0.001, result.a_new.t_f);
+      result.a_new.t_s_land = std::min(0.001, result.a_new.t_s_land);
+#ifdef DEBUG_INVALID_STATE
+      printf("Invalid takeoff config\n");
+#endif
+      return false;
+    }
+    else
+    {
+      result.s_new = s_takeoff;
+      result.t_new = t_s;
+      result.length += poseDistance(s_takeoff, s_prev);
+    }
+
+    // FLIGHT ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    t = planner_config.dt;
+    while (t < t_f)
+    {
+      State s_next = applyFlight(s_takeoff, t, planner_config);
+
+      // Check collision in flight
+      if (!isValidState2(s_next, planner_config, FLIGHT, check))
+      {
+#ifdef DEBUG_INVALID_STATE
+        printf("Flight collision, exiting\n");
+        printState(s_next);
+        std::cout << "t = " << t << std::endl;
+        std::cout << "t_f = " << t_f << std::endl;
+#endif
+        result.s_new = s_next;
+        return false;
+      }
+      result.length += poseDistance(s_next, s_prev);
+      s_prev = s_next;
+
+      t += planner_config.dt;
+    }
+
+    // LANDING ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+    if (phase != CONNECT)
+    {
+      State s_land = applyFlight(s_takeoff, t_f, planner_config);
+
+      t = 0;
+      while (t < t_s_land)
+      {
+        // Compute state to check
+        State s_next =
+            applyStance(s_land, result.a_new, t, LAND_STANCE, planner_config);
+
+        if (!isValidState2(s_next, planner_config, LAND_STANCE, check))
+        {
+#ifdef DEBUG_INVALID_STATE
+          printf("Invalid landing stance config\n");
+#endif
+          result.s_new = s_next;
+          return false;
+        }
+        else
+        {
+          result.length += poseDistance(s_next, s_prev);
+          s_prev = s_next;
+        }
+        t += planner_config.dt;
+      }
+
+      State s_final =
+          applyStance(s_land, result.a_new, LAND_STANCE, planner_config);
+
+      if (!isValidState2(s_final, planner_config, LAND_STANCE, check))
+      {
+#ifdef DEBUG_INVALID_STATE
+        printf("Invalid s_final config");
+#endif
+        return false;
+      }
+      result.s_new = s_final;
+    }
+
+    return true;
+  }
+
 
   bool isValidStateActionPair(const State &s_in, const Action &a,
                               StateActionResult &result,

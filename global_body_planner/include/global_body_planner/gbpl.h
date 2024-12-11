@@ -44,6 +44,10 @@ class GBPL : public RRT {
   std::vector<Action> getActionSequenceReverse(PlannerClass &T,
                                                std::vector<int> path);
 
+
+  void postProcessPath2(std::vector<State> &state_sequence,
+                           std::vector<Action> &action_sequence,
+                           const PlannerConfig &planner_config, bool &check);
   /**
    * @brief Post process the path by removing extraneous states that can be
    * bypassed
