@@ -1,0 +1,12 @@
+<map id="GlobalBodyPlannerTestFixture" name="GlobalBodyPlannerTestFixture">
+<area shape="rect" id="Node000001" title="A test fixture for the global body planning class." alt="" coords="48,183,244,208"/>
+<area shape="rect" id="Node000002" title=" " alt="" coords="5,94,98,120"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="77,128,135,180,131,184,74,132"/>
+<area shape="rect" id="Node000003" href="$structplanning__utils_1_1PlannerConfig.html" title="Planner Configuration." alt="" coords="216,94,402,120"/>
+<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="274,130,170,184,168,180,271,125"/>
+<area shape="rect" id="Node000004" href="$classFastTerrainMap.html" title="A terrain map class built for fast and efficient sampling." alt="" coords="103,5,216,31"/>
+<area shape="poly" id="edge5_Node000001_Node000004" title=" " alt="" coords="160,47,150,182,144,182,155,46"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="195,37,289,91,286,96,192,41"/>
+<area shape="rect" id="Node000005" href="$classBoundingBoxes.html" title=" " alt="" coords="253,5,365,31"/>
+<area shape="poly" id="edge4_Node000003_Node000005" title=" " alt="" coords="312,47,312,94,306,94,306,47"/>
+</map>

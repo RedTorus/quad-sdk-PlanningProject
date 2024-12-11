@@ -1,0 +1,13 @@
+<map id="Graphical Class Hierarchy" name="Graphical Class Hierarchy">
+<area shape="rect" id="Node000000" href="$classLegController.html" title="Implements an abstract class for leg controllers." alt="" coords="5,104,104,130"/>
+<area shape="rect" id="Node000001" href="$classGrfPidController.html" title="Implements inverse dynamics as a controller within the ROS framework." alt="" coords="189,5,303,31"/>
+<area shape="poly" id="edge6_Node000000_Node000001" title=" " alt="" coords="78,92,111,65,150,40,188,26,190,31,153,45,114,69,81,96"/>
+<area shape="rect" id="Node000002" href="$classInertiaEstimationController.html" title="Special&#45;purpose inertia parameter estimation leg controller." alt="" coords="159,55,333,80"/>
+<area shape="poly" id="edge7_Node000000_Node000002" title=" " alt="" coords="118,98,151,89,192,78,193,83,152,94,119,103"/>
+<area shape="rect" id="Node000003" href="$classInverseDynamicsController.html" title="Implements inverse dynamics as a controller within the ROS framework." alt="" coords="158,104,334,130"/>
+<area shape="poly" id="edge8_Node000000_Node000003" title=" " alt="" coords="119,114,157,114,157,120,119,120"/>
+<area shape="rect" id="Node000004" href="$classJointController.html" title="Implements inverse dynamics as a controller within the ROS framework." alt="" coords="194,153,298,179"/>
+<area shape="poly" id="edge9_Node000000_Node000004" title=" " alt="" coords="119,131,152,140,194,150,193,156,151,145,118,136"/>
+<area shape="rect" id="Node000005" href="$classUnderbrushInverseDynamicsController.html" title="Implements inverse dynamics as a controller within the ROS framework." alt="" coords="152,203,340,244"/>
+<area shape="poly" id="edge10_Node000000_Node000005" title=" " alt="" coords="82,138,115,164,153,189,177,200,174,205,150,194,112,169,79,142"/>
+</map>
