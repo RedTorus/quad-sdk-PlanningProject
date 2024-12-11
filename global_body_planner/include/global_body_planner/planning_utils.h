@@ -96,6 +96,8 @@ namespace planning_utils
     std::unordered_map<std::string, BoundingBox> BB;
 
     std::shared_ptr<CollisionChecker> collision_checker;
+    Eigen::Vector3d vel_collision;
+    double dt_collision;
 
     /**
      * Load the vector of reachability test points and collision test
