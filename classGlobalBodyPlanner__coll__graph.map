@@ -1,13 +1,19 @@
 <map id="GlobalBodyPlanner" name="GlobalBodyPlanner">
-<area shape="rect" id="Node000001" title="A global body planning class for legged robots." alt="" coords="156,213,288,238"/>
-<area shape="rect" id="Node000002" href="$classGlobalBodyPlan.html" title="A class to contain global plan data along with helper functions." alt="" coords="5,94,119,120"/>
-<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="81,130,106,159,137,186,184,210,181,214,134,191,102,163,77,134"/>
-<area shape="rect" id="Node000003" href="$structplanning__utils_1_1FullState.html" title="Define full state with Eigen data." alt="" coords="143,94,301,120"/>
-<area shape="poly" id="edge2_Node000001_Node000003" title=" " alt="" coords="225,135,225,212,219,212,219,135"/>
-<area shape="rect" id="Node000004" href="$structplanning__utils_1_1PlannerConfig.html" title="Planner Configuration." alt="" coords="325,94,511,120"/>
-<area shape="poly" id="edge3_Node000001_Node000004" title=" " alt="" coords="392,131,301,191,252,215,250,210,298,186,389,127"/>
-<area shape="rect" id="Node000005" href="$classFastTerrainMap.html" title="A terrain map class built for fast and efficient sampling." alt="" coords="294,5,406,31"/>
-<area shape="poly" id="edge4_Node000004_Node000005" title=" " alt="" coords="371,42,411,92,407,95,367,45"/>
-<area shape="rect" id="Node000006" href="$classBoundingBoxes.html" title=" " alt="" coords="430,5,542,31"/>
-<area shape="poly" id="edge5_Node000004_Node000006" title=" " alt="" coords="469,45,429,95,425,92,465,42"/>
+<area shape="rect" id="Node000001" title="A global body planning class for legged robots." alt="" coords="728,105,859,131"/>
+<area shape="rect" id="Node000002" href="$classPRM__PlannerClass.html" title=" " alt="" coords="426,5,561,31"/>
+<area shape="poly" id="edge1_Node000001_Node000002" title=" " alt="" coords="576,24,640,37,705,57,745,79,778,103,775,107,743,84,703,62,639,42,575,29"/>
+<area shape="rect" id="Node000003" href="$classPlannerClass.html" title=" " alt="" coords="151,5,249,31"/>
+<area shape="poly" id="edge2_Node000002_Node000003" title=" " alt="" coords="264,16,426,16,426,21,264,21"/>
+<area shape="rect" id="Node000004" href="$classGraphClass.html" title="A general directed graph class." alt="" coords="5,5,95,31"/>
+<area shape="poly" id="edge3_Node000003_Node000004" title=" " alt="" coords="110,16,151,16,151,21,110,21"/>
+<area shape="rect" id="Node000005" href="$classGlobalBodyPlan.html" title="A class to contain global plan data along with helper functions." alt="" coords="437,67,550,92"/>
+<area shape="poly" id="edge4_Node000001_Node000005" title=" " alt="" coords="566,86,727,107,727,112,565,91"/>
+<area shape="rect" id="Node000006" href="$structplanning__utils_1_1FullState.html" title="Define full state with Eigen data." alt="" coords="414,143,573,168"/>
+<area shape="poly" id="edge5_Node000001_Node000006" title=" " alt="" coords="588,160,645,158,703,151,736,142,765,129,767,134,738,147,704,156,646,164,588,165"/>
+<area shape="rect" id="Node000007" href="$structplanning__utils_1_1PlannerConfig.html" title="Planner Configuration." alt="" coords="400,192,587,218"/>
+<area shape="poly" id="edge6_Node000001_Node000007" title=" " alt="" coords="602,202,653,195,703,181,745,157,777,129,781,133,748,161,705,186,654,201,603,208"/>
+<area shape="rect" id="Node000008" href="$classFastTerrainMap.html" title="A terrain map class built for fast and efficient sampling." alt="" coords="144,167,256,192"/>
+<area shape="poly" id="edge7_Node000007_Node000008" title=" " alt="" coords="272,183,400,194,400,199,272,188"/>
+<area shape="rect" id="Node000009" href="$classBoundingBoxes.html" title=" " alt="" coords="145,216,256,242"/>
+<area shape="poly" id="edge8_Node000007_Node000009" title=" " alt="" coords="271,226,376,221,419,216,420,221,377,226,272,232"/>
 </map>
