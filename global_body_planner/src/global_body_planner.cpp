@@ -237,7 +237,7 @@ bool GlobalBodyPlanner::callPlanner() {
     std::vector<Action> action_sequence;
 
     // Call the planner method
-    int plan_status = gbpl.findPlan(planner_config_, start_state, goal_state,
+    int plan_status = gbpl.findPlan2(planner_config_, start_state, goal_state,
                                     state_sequence, action_sequence, tree_pub_);
     newest_plan_.setComputedTimestamp(ros::Time::now());
 
@@ -354,6 +354,7 @@ void GlobalBodyPlanner::getInitialPlan() {
   ros::Time start_time = ros::Time::now();
 
   bool success = false;
+  ROS_INFO("---------------Starting initial plan");
 
   // Repeatedly call the planner until the startup delay has elapsed
   while (ros::ok() && ((ros::Time::now() - start_time) <
@@ -428,6 +429,8 @@ void GlobalBodyPlanner::spin() {
     setGoalState();
 
     // Call the planner
+    ROS_INFO("----------In SPIN Calling planner");
+    ROS_INFO("planner status: %d", planner_status_);
     callPlanner();
 
     // Publish the results if valid

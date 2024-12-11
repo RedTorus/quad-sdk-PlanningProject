@@ -845,6 +845,11 @@ namespace planning_utils
    */
   bool isValidAction(const Action &a, const PlannerConfig &planner_config);
 
+  bool isValidState2(const State &s, const PlannerConfig &planner_config,
+                    int phase, bool check=false);
+
+  bool isValidState2(const State &s, const PlannerConfig &planner_config,
+                    int phase, double &max_height, bool check=false);
   /**
    * @brief Check the State is valid or not in terms of traversability,
    * reachability, collision, etc.
@@ -878,6 +883,10 @@ namespace planning_utils
    * @param[in] planner_config Configuration parameters
    * @return Whether the StateActionPair is valid or not
    */
+  bool isValidStateActionPair2(const State &s_in, const Action &a,
+                              StateActionResult &result,
+                              const PlannerConfig &planner_config, bool check=false);
+
   bool isValidStateActionPair(const State &s, const Action &a,
                               StateActionResult &result,
                               const PlannerConfig &planner_config);

@@ -41,6 +41,15 @@ class RRT {
    * @return Int describing the result of the attempt (TRAPPED, ADVANCED, or
    * REACHED)
    */
+
+  int attemptConnect2(const State &s_existing, const State &s, double t_s,
+                     StateActionResult &result,
+                     const PlannerConfig &planner_config, int direction, bool &check);
+
+   int attemptConnect2(const State &s_existing, const State &s,
+                     StateActionResult &result,
+                     const PlannerConfig &planner_config, int direction, bool &check);
+
   int attemptConnect(const State &s_existing, const State &s, double t_s,
                      StateActionResult &result,
                      const PlannerConfig &planner_config, int direction);

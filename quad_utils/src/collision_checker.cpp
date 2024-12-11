@@ -14,7 +14,7 @@ bool CollisionChecker::isInCollision(const geometry_msgs::Point& point) const {
     // Check if the point is within any bounding box
     for (const auto& [link_name, box] : boxes) {
         //ROS_INFO("box.min_x: %f box.max_x: %f box.min_y: %f box.max_y: %f", box.min_x, box.max_x, box.min_y, box.max_y);	
-        if (point.x >= box.min_x -0.02 && point.x <= box.max_x + 0.02 && point.y >= box.min_y - 0.02 && point.y <= box.max_y + 0.02){ //&& point.z >= box.min_z && point.z <= box.max_z) {
+        if (point.x >= box.min_x -0.04 && point.x <= box.max_x + 0.04 && point.y >= box.min_y - 0.04 && point.y <= box.max_y + 0.04){ //&& point.z >= box.min_z && point.z <= box.max_z) {
             //ROS_WARN_STREAM("Collision detected with link: " << link_name);
             return true; // Point is inside a bounding box
         }
