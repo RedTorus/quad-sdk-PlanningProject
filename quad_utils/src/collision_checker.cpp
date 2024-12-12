@@ -2,7 +2,7 @@
 #include <ros/ros.h> // For logging
 
 
-CollisionChecker::CollisionChecker(const BoundingBoxes& bounding_boxes)
+CollisionChecker::CollisionChecker(BoundingBoxes& bounding_boxes)
     : bounding_boxes_(bounding_boxes) {}
 
 bool CollisionChecker::isInCollision(const geometry_msgs::Point& point) const {
@@ -31,9 +31,10 @@ bool CollisionChecker::isInCollision(const geometry_msgs::Point& point) const {
     return false;
 }
 
-bool CollisionChecker::isInExpandedCollision(const geometry_msgs::Point& point, const Eigen::Vector3d& velocity, double dt) {
+bool CollisionChecker::isInExpandedCollision(const geometry_msgs::Point& point, Eigen::Vector3d& velocity, double dt) {
+    
+    bounding_boxes_.updateBoundingBoxes();
     // Get the latest bounding boxes
-    //bounding_boxes_.updateBoundingBoxes();
     const auto& boxes = bounding_boxes_.getBoundingBoxes();
     
     // Check if the point is within any expanded bounding box
@@ -46,7 +47,6 @@ bool CollisionChecker::isInExpandedCollision(const geometry_msgs::Point& point, 
             return true; // Point is inside an expanded bounding box
         }
     }
-
     // No collision detected
     return false;
 }

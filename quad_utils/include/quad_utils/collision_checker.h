@@ -14,7 +14,7 @@ public:
      * @param bounding_boxes Reference to the BoundingBoxes object.
      */
     CollisionChecker() = default;
-    CollisionChecker(const BoundingBoxes& bounding_boxes);
+    CollisionChecker(BoundingBoxes& bounding_boxes);
 
     /**
      * Check if a given point is within any bounding box.
@@ -23,14 +23,14 @@ public:
      */
     bool isInCollision(const geometry_msgs::Point& point) const;
 
-    bool isInExpandedCollision(const geometry_msgs::Point& point, const Eigen::Vector3d& velocity, double dt);
+    bool isInExpandedCollision(const geometry_msgs::Point& point, Eigen::Vector3d& velocity, double dt);
 
     bool isInTransformedCollision(const geometry_msgs::Point& point,const Eigen::Matrix3d& R_mat) const;
 
     bool isInTransformedCollision2(const geometry_msgs::Point& point,const Eigen::Matrix3d& R_mat, const Eigen::Vector3d& T) const;
 
 private:
-    const BoundingBoxes& bounding_boxes_; // Reference to the bounding boxes object
+    BoundingBoxes& bounding_boxes_; // Reference to the bounding boxes object
 };
 
 #endif // COLLISION_CHECKER_H

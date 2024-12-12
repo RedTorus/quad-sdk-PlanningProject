@@ -5,6 +5,9 @@
 #include <string>
 #include <vector>
 
+// Global variable declaration
+extern int object_direction;
+
 // Function to apply force to a specific body of the model
 void applyForceToModel(ros::NodeHandle& nh, const std::string& target_body, double force_x, double force_y, double force_z, double duration = 0.5);
 

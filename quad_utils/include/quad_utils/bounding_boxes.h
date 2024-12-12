@@ -7,6 +7,7 @@
 #include <unordered_map>
 #include <vector>
 #include <Eigen/Dense>
+#include "quad_utils/apply_force.h" // Include the header file where object_direction is declared
 
 // Define a structure for link sizes
 struct LinkSize {
@@ -36,7 +37,7 @@ public:
     const std::unordered_map<std::string, BoundingBox>& getBoundingBoxes() const;
 
     BoundingBox computeBoundingBox(const gazebo_msgs::LinkState& link_state, const LinkSize& size);
-    BoundingBox computeSlidingWindowBoundingBox(const BoundingBox& bbox, const Eigen::Vector3d& velocity, double dt) const;
+    BoundingBox computeSlidingWindowBoundingBox(const BoundingBox& bbox, Eigen::Vector3d& velocity, double dt);
 
 private:
     

@@ -8,6 +8,8 @@
 #include <thread>
 #include <chrono>
 
+int object_direction = 0; 
+
 void applyForceToModel(ros::NodeHandle &nh, const std::string &target_body, double force_x, double force_y, double force_z, double duration)
 {
     ros::service::waitForService("/gazebo/apply_body_wrench");
@@ -171,6 +173,9 @@ void setPosition(ros::NodeHandle& nh, const std::string& model_name, double x, d
 }
 
 void moveBlockContinuously(ros::NodeHandle& nh, const std::string& model_name, double velocity_x, double velocity_y, double velocity_z, double duration_secs, double period_secs) {
+    
+    int object_direction = 0; // Initialize the variable
+
     double x, y, z;
     if (!getInitialPosition(nh, model_name, x, y, z)) {
         ROS_ERROR("Failed to get initial position. Exiting.");
@@ -186,10 +191,15 @@ void moveBlockContinuously(ros::NodeHandle& nh, const std::string& model_name, d
     while (ros::ok() && (ros::Time::now() - start_time) < duration) {
         // Toggle velocity direction every period_secs
         if ((ros::Time::now() - last_toggle_time) >= period) {
+            
+            object_direction = 1;
+
             velocity_x = -velocity_x;
             velocity_y = -velocity_y;
             velocity_z = -velocity_z;
             last_toggle_time = ros::Time::now();
+        } else {
+            object_direction = 0;
         }
 
         x += velocity_x / 100.0; // Update position based on velocity and rate

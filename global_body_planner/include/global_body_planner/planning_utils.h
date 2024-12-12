@@ -21,6 +21,8 @@
 #include <unordered_set>
 #include <vector>
 #include <Eigen/Dense>
+#include "quad_utils/apply_force.h"
+
 
 // #include <quad_utils/collision_checker.h>
 
