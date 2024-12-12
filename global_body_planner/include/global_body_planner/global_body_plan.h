@@ -180,6 +180,8 @@ class GlobalBodyPlan {
   void convertToMsg(quad_msgs::RobotPlan& robot_plan_msg,
                     quad_msgs::RobotPlan& discrete_robot_plan_msg);
 
+  const std::vector<FullState>& getBodyPlan() const;
+
  private:
   /// Time stamp for when plan was computed (unique)
   ros::Time computed_timestamp_;

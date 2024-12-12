@@ -14,7 +14,7 @@ bool CollisionChecker::isInCollision(const geometry_msgs::Point& point) const {
     // Check if the point is within any bounding box
     for (const auto& [link_name, box] : boxes) {
         //ROS_INFO("box.min_x: %f box.max_x: %f box.min_y: %f box.max_y: %f", box.min_x, box.max_x, box.min_y, box.max_y);	
-        if (point.x >= box.min_x -0.04 && point.x <= box.max_x + 0.04 && point.y >= box.min_y - 0.04 && point.y <= box.max_y + 0.04){ //&& point.z >= box.min_z && point.z <= box.max_z) {
+        if (point.x >= box.min_x -0.07 && point.x <= box.max_x + 0.07 && point.y >= box.min_y - 0.03 && point.y <= box.max_y + 0.03){ //&& point.z >= box.min_z && point.z <= box.max_z) {
             //ROS_WARN_STREAM("Collision detected with link: " << link_name);
             return true; // Point is inside a bounding box
         }
@@ -38,9 +38,9 @@ bool CollisionChecker::isInExpandedCollision(const geometry_msgs::Point& point, 
     for (const auto& [link_name, box] : boxes) {
         BoundingBox expanded_box = bounding_boxes_.computeSlidingWindowBoundingBox(box, velocity, dt);
 
-        if (point.x >= expanded_box.min_x && point.x <= expanded_box.max_x &&
-            point.y >= expanded_box.min_y && point.y <= expanded_box.max_y &&
-            point.z >= expanded_box.min_z && point.z <= expanded_box.max_z) {
+        if (point.x >= expanded_box.min_x -0.04 && point.x <= expanded_box.max_x + 0.04 &&
+            point.y >= expanded_box.min_y -0.03 && point.y <= expanded_box.max_y +0.03) {//&&
+            //point.z >= expanded_box.min_z && point.z <= expanded_box.max_z) {
             return true; // Point is inside an expanded bounding box
         }
     }

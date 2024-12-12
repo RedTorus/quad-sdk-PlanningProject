@@ -3,6 +3,7 @@
 #include <quad_utils/collision_checker.h>
 #include <quad_utils/bounding_boxes.h>
 #include "global_body_planner/prm_planner_class.h"
+#include "global_body_planner/prm.h"
 
 using namespace planning_utils;
 
@@ -418,26 +419,61 @@ bool GlobalBodyPlanner::callPlanner2() {
                               state_sequence, action_sequence, dt_,
                               replan_start_time_, planner_config_);
 
+    
+    bool is_updated = false;
+
+    PRM prm;
+    std::vector<State> current_state_sequence;
+    std::vector<State> new_state_sequence;
+
+    // Convert FullState to State
+    for (const auto& full_state : current_plan_.getBodyPlan()) {
+        current_state_sequence.push_back(fullStateToState(full_state));
+    }
+    for (const auto& full_state : newest_plan_.getBodyPlan()) {
+        new_state_sequence.push_back(fullStateToState(full_state));
+    }
+    //ROS_INFO("-------------------------------current_state_sequence size: %d", current_state_sequence.size());
+    //ROS_INFO("-------------------------------new_state_sequence size: %d", new_state_sequence.size());
+    bool current_collison = true;
+    bool new_collison = true;
+    if (current_state_sequence.size() != 0 && new_state_sequence.size() != 0) {
+      current_collison = prm.checkTrajectoryCollsion(PRM_Graph, current_state_sequence, planner_config_);
+      new_collison = prm.checkTrajectoryCollsion(PRM_Graph, new_state_sequence, planner_config_);
+
+      ROS_INFO("-------------------------------current collison: %d", current_collison);
+      ROS_INFO("-------------------------------new collison: %d", new_collison);
+
+      if (!current_collison) {
+        ROS_INFO("-------------------------------current plan set to new plan");
+        is_updated = true;
+      }
+      if (!current_collison && !new_collison) {
+        ROS_WARN("Both plans have collision");
+      }
+    }
+
+    if (current_state_sequence.size() == 0) {
+      is_updated = true;
+    }
+
     // Check if this plan is better:
     // 1) If valid and shorter or previous plan not valid OR
     // 2) If partially valid and closer to the goal OR
     // 3) If goal has moved
-    double eps = 1.99;  // Require significant improvement
-    bool is_updated = false;
+    double eps = 0.996;  // Require significant improvement
     if ((plan_status == VALID) &&
         ((newest_plan_.getLength() / eps) < current_plan_.getLength() ||
          current_plan_.getStatus() != VALID)) {
-      ROS_INFO("valid and shorter or previous plan not valid");
       is_updated = true;
-
     } else if ((plan_status == VALID_PARTIAL) &&
                (current_plan_.getStatus() == UNSOLVED ||
                 (poseDistance(state_sequence.back(), goal_state) <
                  current_plan_.getGoalDistance()))) {
-      ROS_INFO("partially valid and closer to the goal");
       is_updated = true;
     }
-    ROS_INFO("-------------------------------is_updated: %d", is_updated);
+    
+
     if (is_updated) {
       state_sequence_ = state_sequence;
       action_sequence_ = action_sequence;
@@ -569,10 +605,10 @@ void GlobalBodyPlanner::spin() {
     setGoalState();
 
     // Call the planner
-    ROS_INFO("----------In SPIN Calling planner");
-    ROS_INFO("planner status: %d", planner_status_);
+    //ROS_INFO("----------In SPIN Calling planner");
+    //ROS_INFO("planner status: %d", planner_status_);
     callPlanner2();
-
+    ROS_INFO("Curreent plan state size: %d", current_plan_.getBodyPlan().size());
     // Publish the results if valid
     publishCurrentPlan();
 

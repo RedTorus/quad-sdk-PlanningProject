@@ -6,6 +6,10 @@ GlobalBodyPlan::GlobalBodyPlan() {
   plan_status_ = UNSOLVED;
 }
 
+const std::vector<FullState>& GlobalBodyPlan::getBodyPlan() const {
+    return body_plan_;
+}
+
 void GlobalBodyPlan::clear() {
   // Clear all data and reset the length of the plan
   t_plan_.clear();

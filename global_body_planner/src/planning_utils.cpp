@@ -1,5 +1,6 @@
 #include "global_body_planner/planning_utils.h"
 #include <ros/package.h>
+#include <Eigen/Dense>
 
 namespace planning_utils
 {
@@ -1005,8 +1006,16 @@ namespace planning_utils
       // ROS_INFO("PUTILS bounding_boxes: %d", planner_config.BB.size());
       if (check){
         //ROS_INFO("----------DOING COLLISION CHECK");
-        if (planner_config.collision_checker->isInCollision(point_msg))
+        double velocity_x = 0.0; // Velocity in x direction
+        double velocity_y = 0.12; // Velocity in y direction
+        double velocity_z = 0.0; // Velocity in z direction
+
+    // Convert to Eigen::Vector3d
+       Eigen::Vector3d velocity(velocity_x, velocity_y, velocity_z);
+        //if (planner_config.collision_checker->isInCollision(point_msg))
+        if (planner_config.collision_checker->isInExpandedCollision(point_msg, velocity, 0.4) || planner_config.collision_checker->isInCollision(point_msg))
         {
+          //ROS_INFO("State in collision with obstacle!");
           //ROS_WARN_STREAM("State in collision with obstacle!");
           return false; // Invalid state due to collision
         }

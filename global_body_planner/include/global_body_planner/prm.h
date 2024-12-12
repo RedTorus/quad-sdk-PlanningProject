@@ -39,6 +39,13 @@ public:
 
     void reset_gValues(PRM_PlannerClass &G);
 
+    void add_and_updateG(PRM_PlannerClass &G, const State &s, const int &s_index, const State &goal, const double &epsilon, const PlannerConfig &planner_config);
+
+    bool checkTrajectoryCollsion(PRM_PlannerClass &G, const std::vector<State> &state_sequence, const PlannerConfig &planner_config);
+
+    bool testCollision(PRM_PlannerClass &G, std::vector<State> &state_sequence, const PlannerConfig &planner_config);
+
+
 protected:
     // Method to sample random points
     State samplePoint(PRM_PlannerClass &G, const PlannerConfig &planner_config);

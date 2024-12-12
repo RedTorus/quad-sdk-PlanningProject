@@ -448,7 +448,7 @@ int GBPL::findPlan3(const PlannerConfig &planner_config, PRM_PlannerClass &G, St
   // Perform validity checking on start and goal states
   if (!isValidState2(s_start, planner_config, LEAP_STANCE, true)) {
     return INVALID_START_STATE;}  
-
+  double epsilon = 0.85;
   // Set goal height to nominal distance above terrain
   s_goal.pos[2] =
       getTerrainZFromState(s_goal, planner_config) + planner_config.h_nom;
@@ -467,7 +467,7 @@ int GBPL::findPlan3(const PlannerConfig &planner_config, PRM_PlannerClass &G, St
     start_index = 0;
     G.addVertex(1, s_goal); 
     goal_index = 1;
-    prm.buildRoadmap2(G, planner_config, start_index, goal_index, 22000, 0.85);
+    prm.buildRoadmap2(G, planner_config, start_index, goal_index, 15000, epsilon);
     ROS_INFO("------------Built roadmap 1st time");
   }
 
@@ -477,7 +477,7 @@ int GBPL::findPlan3(const PlannerConfig &planner_config, PRM_PlannerClass &G, St
     }
     else{
       start_index = G.getNumVertices();
-      G.addVertex(start_index, s_start);
+      prm.add_and_updateG(G, s_start, start_index, s_goal, epsilon, planner_config);
     }
   }
 
@@ -492,21 +492,25 @@ int GBPL::findPlan3(const PlannerConfig &planner_config, PRM_PlannerClass &G, St
   /* ROS_INFO("start state index: %d", start_index);
   ROS_INFO("start state position: %f, %f, %f", G.getVertex(start_index).pos[0], G.getVertex(start_index).pos[1], G.getVertex(start_index).pos[2]);
   ROS_INFO("------------Calling Astar"); */
+  //ROS_INFO("Start state index: %d", start_index);
+  //ROS_INFO("Start state position: %f, %f, %f", s_start.pos[0], s_start.pos[1], s_start.pos[2]);
+  //ROS_INFO("Goal state position: %f, %f, %f", s_goal.pos[0], s_goal.pos[1], s_goal.pos[2]);
   prm.reset_gValues(G);
-  std::vector<int> path = prm.WAstar(G, start_index, goal_index, 0.85, 1.7, planner_config);
+  std::vector<int> path = prm.WAstar(G, start_index, goal_index, epsilon, 1.7, planner_config);
   if(path.size() == 0){
     ROS_WARN("------------Astar failed");
     return UNSOLVED;
   }
 
-  ROS_INFO("------------Astar successfully completed");
-  ROS_INFO("------------Path size: %ld", path.size());
+  //ROS_INFO("------------Astar successfully completed");
+  //ROS_INFO("------------Path size: %ld", path.size());
   state_sequence = G.retrieveStateSequence(path);
+  prm.testCollision(G, state_sequence, planner_config);
   action_sequence = G.retrieveActionSequence(path);
-  ROS_INFO("------------Retrieved state and action sequences");
+  //ROS_INFO("------------Retrieved state and action sequences");
   bool check = true;
 
-  postProcessPath2(state_sequence, action_sequence, planner_config, check);
+  //postProcessPath2(state_sequence, action_sequence, planner_config, check);
   
   path_length_ = 0.0;
   path_duration_ = 0.0;
@@ -517,9 +521,9 @@ int GBPL::findPlan3(const PlannerConfig &planner_config, PRM_PlannerClass &G, St
   dist_to_goal_ = poseDistance(s_goal, state_sequence.back());
 
   
-  ROS_INFO("Final path duration: %f", path_duration_);
+  //ROS_INFO("Final path duration: %f", path_duration_);
 
-  ROS_INFO("PRM planning completed successfully.");
+  //ROS_INFO("PRM planning completed successfully.");
   return VALID;
 }
 

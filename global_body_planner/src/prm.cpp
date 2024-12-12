@@ -18,7 +18,7 @@ void PRM::buildRoadmap(PRM_PlannerClass &G, const PlannerConfig &planner_config,
     StateActionResult result;
     bool check=false;
     State goal = G.getVertex(1);
-    G.updateGValue(1, std::numeric_limits<double>::max()-10);
+    G.updateGValue(1, std::numeric_limits<float>::max());
     G.updateGValue(0, 0);
     for (int i = 0; i < num_samples; ++i)
     {
@@ -31,7 +31,7 @@ void PRM::buildRoadmap(PRM_PlannerClass &G, const PlannerConfig &planner_config,
         int s_new_index = G.getNumVertices();
         G.addVertex(s_new_index, random_state);
         updateDistHeuristic(G, planner_config, random_state, s_new_index, goal);
-        G.updateGValue(s_new_index, std::numeric_limits<double>::max()-10);
+        G.updateGValue(s_new_index, std::numeric_limits<double>::infinity());
         std::vector<int> neighbors = G.neighborhoodDist(random_state, epsilon); // ToDo put dist in PlannerConfig
         if (neighbors.empty())
         {
@@ -73,7 +73,7 @@ void PRM::buildRoadmap2(PRM_PlannerClass &G, const PlannerConfig &planner_config
     StateActionResult result;
     bool check=false;
     State goalS = G.getVertex(goal);
-    G.updateGValue(goal, std::numeric_limits<double>::max()-30);
+    G.updateGValue(goal, std::numeric_limits<double>::infinity());
     G.updateGValue(start, 0);
     for (int i = 0; i < num_samples; ++i)
     {
@@ -86,7 +86,7 @@ void PRM::buildRoadmap2(PRM_PlannerClass &G, const PlannerConfig &planner_config
         int s_new_index = G.getNumVertices();
         G.addVertex(s_new_index, random_state);
         updateDistHeuristic(G, planner_config, random_state, s_new_index, goalS);
-        G.updateGValue(s_new_index, std::numeric_limits<double>::max()-30);
+        G.updateGValue(s_new_index, std::numeric_limits<double>::infinity());
         std::vector<int> neighbors = G.neighborhoodDist(random_state, epsilon); // ToDo put dist in PlannerConfig
         if (neighbors.empty())
         {
@@ -254,7 +254,7 @@ bool PRM::IsInGraph(const State &s, PRM_PlannerClass &G, const PlannerConfig &pl
     int n = G.getNearestNeighbor(s);
     State neighbor = G.getVertex(n);
     double delta = stateDistance(s, neighbor);
-    double tres = 0.1;
+    double tres = 0.3;
     if (delta < tres)
     {
         return true;
@@ -297,7 +297,7 @@ std::vector<int> PRM::Astar(PRM_PlannerClass &G, const int &start, const int &go
         closed.insert(current);
 
         if(current == goal){
-            ROS_INFO("--------Goal reached");
+            //ROS_INFO("--------Goal reached");
             break;
         }
 
@@ -314,8 +314,10 @@ std::vector<int> PRM::Astar(PRM_PlannerClass &G, const int &start, const int &go
             }
 
             if (!isValidState2(G.getVertex(neighbor), planner_config, LEAP_STANCE, check)) {
+                G.h_dist[neighbor] = std::numeric_limits<double>::infinity(); 
                 continue;
             }
+            G.h_dist[neighbor] = stateDistance(G.getVertex(neighbor), G.getVertex(goal));
 
             if ((G.g_values[neighbor] > G.g_values[current] + stateDistance(G.getVertex(current), G.getVertex(neighbor)))&& a){
                 G.g_values[neighbor] = G.g_values[current] + stateDistance(G.getVertex(current), G.getVertex(neighbor));
@@ -338,13 +340,13 @@ std::vector<int> PRM::Astar(PRM_PlannerClass &G, const int &start, const int &go
     }
     path.push_back(start);
     std::reverse(path.begin(), path.end());
-    ROS_INFO("---------Path found");
+    //ROS_INFO("---------Path found");
 
     auto end_time = std::chrono::steady_clock::now(); // End timing
     std::chrono::duration<double> elapsed_seconds = end_time - start_time;
-    ROS_INFO("Astar completed in %f seconds", elapsed_seconds.count());
+    /* ROS_INFO("Astar completed in %f seconds", elapsed_seconds.count());
     ROS_INFO("Cost of Astar (g value of goal): %f", G.g_values[1]);
-    ROS_INFO("Number of nodes in closed list: %d", closed.size());
+    ROS_INFO("Number of nodes in closed list: %d", closed.size()); */
     return path;
 
 }
@@ -372,7 +374,7 @@ std::vector<int> PRM::WAstar(PRM_PlannerClass &G, const int &start, const int &g
         closed.insert(current);
 
         if(current == goal){
-            ROS_INFO("--------Goal reached");
+            //ROS_INFO("--------Goal reached");
             break;
         }
 
@@ -389,8 +391,10 @@ std::vector<int> PRM::WAstar(PRM_PlannerClass &G, const int &start, const int &g
             }
 
             if (!isValidState2(G.getVertex(neighbor), planner_config, LEAP_STANCE, check)) {
+                G.h_dist[neighbor] = std::numeric_limits<double>::infinity();
                 continue;
             }
+            G.h_dist[neighbor] = stateDistance(G.getVertex(neighbor), G.getVertex(goal));
 
             if ((G.g_values[neighbor] > G.g_values[current] + stateDistance(G.getVertex(current), G.getVertex(neighbor)))&& a){
                 G.g_values[neighbor] = G.g_values[current] + stateDistance(G.getVertex(current), G.getVertex(neighbor));
@@ -413,13 +417,13 @@ std::vector<int> PRM::WAstar(PRM_PlannerClass &G, const int &start, const int &g
     }
     path.push_back(start);
     std::reverse(path.begin(), path.end());
-    ROS_INFO("---------Path found");
+    //ROS_INFO("---------Path found");
 
     auto end_time = std::chrono::steady_clock::now(); // End timing
     std::chrono::duration<double> elapsed_seconds = end_time - start_time;
-    ROS_INFO("Astar completed in %f seconds", elapsed_seconds.count());
+    /* ROS_INFO("Astar completed in %f seconds", elapsed_seconds.count());
     ROS_INFO("Cost of Astar (g value of goal): %f", G.g_values[1]);
-    ROS_INFO("Number of nodes in closed list: %d", closed.size());
+    ROS_INFO("Number of nodes in closed list: %d", closed.size()); */
     return path;
 
 }
@@ -434,8 +438,75 @@ bool PRM::checkConnection(PRM_PlannerClass &G, int& s, int& neighbor) {
 
 void PRM::reset_gValues(PRM_PlannerClass &G) {
     for (int i = 0; i < G.getNumVertices(); i++) {
-        G.g_values[i] = std::numeric_limits<double>::max()-30;
+        G.g_values[i] = std::numeric_limits<double>::infinity();
     }
+}
+
+void PRM::add_and_updateG(PRM_PlannerClass &G, const State &s, const int &s_index, const State &goal, const double &epsilon, const PlannerConfig &planner_config) {
+    G.addVertex(s_index, s);
+    updateDistHeuristic(G, planner_config, s, s_index, goal);
+    G.updateGValue(s_index, std::numeric_limits<double>::infinity());
+
+    std::vector<int> neighbors = G.neighborhoodDist(s, epsilon);
+    if (neighbors.empty())
+    {
+        return;
+    }
+    bool check = false;
+    StateActionResult result;
+    for (int neighbor : neighbors)
+        {
+            State neighbor_state = G.getVertex(neighbor);
+            if (calculateDirectAction(neighbor_state, s, result, planner_config, check))
+            {
+                G.addEdge(s_index, neighbor, 0.0); // do not want edge cost for now edge len result.distance
+                G.actions[{neighbor, s_index}] = result.a_new;
+                // G.actions[{s_new_index, neighbor}] = flipDirection(a)
+            }
+
+            if (calculateDirectAction(s, neighbor_state, result, planner_config, check))
+            {
+                G.addEdge(neighbor, s_index, 0.0);
+                G.actions[{s_index, neighbor}] = result.a_new;
+                // G.actions[{neighbor, s_new_index}] = flipDirection(a)
+            }
+        }
+
+}
+
+bool PRM::checkTrajectoryCollsion(PRM_PlannerClass &G, const std::vector<State> &state_sequence, const PlannerConfig &planner_config) {
+    bool check = true;
+    for (int i = 0; i < state_sequence.size() - 1; i++) {
+        if (!isValidState2(state_sequence[i], planner_config, LEAP_STANCE, check)) {
+            /* if (IsInGraph(state_sequence[i], G, planner_config)) {
+                int s = G.getNearestNeighbor(state_sequence[i]);
+                G.h_dist[s] = std::numeric_limits<double>::infinity();
+                } */
+            return false;
+        }
+        StateActionResult result;
+        if (!calculateDirectAction(state_sequence[i], state_sequence[i + 1], result, planner_config, check)) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool PRM::testCollision(PRM_PlannerClass &G, std::vector<State> &state_sequence, const PlannerConfig &planner_config) {
+    bool check = true;
+    for (int i = 0; i < state_sequence.size() - 1; i++) {
+        if (!isValidState2(state_sequence[i], planner_config, LEAP_STANCE, check)) {
+            ROS_INFO("Collision detected");
+            return false;
+        }
+        StateActionResult result;
+        if (!calculateDirectAction(state_sequence[i], state_sequence[i + 1], result, planner_config, check)) {
+            ROS_INFO("Collision detected");
+            return false;
+        }
+    }
+    ROS_INFO("No collision detected");
+    return true;
 }
 
 
