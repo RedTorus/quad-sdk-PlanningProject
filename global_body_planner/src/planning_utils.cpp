@@ -1176,6 +1176,8 @@ namespace planning_utils
 
     // Check each of the four corners of the robot
     ros::NodeHandle nh;
+    Eigen::Vector3d vel_collision(1,1,1);
+    double dt_collision = 12;
     /* std::string yaml_file_path = ros::package::getPath("quad_utils") + "/config/short_table_sizes.yaml";//"/config/box_sizes.yaml";
     BoundingBoxes bounding_boxes(nh, yaml_file_path);
     std::unordered_map<std::string, BoundingBox> BB = bounding_boxes.getBoundingBoxes();
