@@ -1013,8 +1013,7 @@ namespace planning_utils
 
     // Convert to Eigen::Vector3d
        Eigen::Vector3d velocity(velocity_x, velocity_y, velocity_z);
-        if (planner_config.collision_checker->isInCollision(point_msg))
-        //if (planner_config.collision_checker->isInExpandedCollision(point_msg, velocity, 1))
+        if (planner_config.collision_checker->isInExpandedCollision(point_msg, velocity, 1))
         {
           //ROS_INFO("State in collision with obstacle!");
           //ROS_WARN_STREAM("State in collision with obstacle!");
