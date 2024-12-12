@@ -18,6 +18,7 @@
 #include "global_body_planner/global_body_plan.h"
 #include <quad_utils/bounding_boxes.h>
 #include <quad_utils/collision_checker.h>
+#include "global_body_planner/prm_planner_class.h"
 
 using namespace planning_utils;
 
@@ -38,6 +39,9 @@ class GlobalBodyPlanner {
    */
   GlobalBodyPlanner(ros::NodeHandle nh);
 
+  void initializePlannerConfig();
+
+  PRM_PlannerClass PRM_Graph;
   /**
    * @brief Call the correct planning class and compute statistics
    * @return Boolean for success of the planner

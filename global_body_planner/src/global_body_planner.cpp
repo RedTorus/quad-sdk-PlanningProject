@@ -2,11 +2,13 @@
 #include <ros/package.h>
 #include <quad_utils/collision_checker.h>
 #include <quad_utils/bounding_boxes.h>
+#include "global_body_planner/prm_planner_class.h"
 
 using namespace planning_utils;
 
-GlobalBodyPlanner::GlobalBodyPlanner(ros::NodeHandle nh) {
+GlobalBodyPlanner::GlobalBodyPlanner(ros::NodeHandle nh): PRM_Graph(planner_config_) {
   nh_ = nh;
+  
 
   // Load rosparams from parameter server
   std::string body_plan_topic, discrete_body_plan_topic, body_plan_tree_topic,
@@ -76,7 +78,6 @@ GlobalBodyPlanner::GlobalBodyPlanner(ros::NodeHandle nh) {
 
 
 
-
   // Fill in the goal state information
   goal_state_vec.resize(12, 0);
   vectorToFullState(goal_state_vec, goal_state_);
@@ -84,6 +85,13 @@ GlobalBodyPlanner::GlobalBodyPlanner(ros::NodeHandle nh) {
   // Zero planning data
   start_index_ = 0;
   triggerReset();
+
+  //initializePlannerConfig(planner_config_);
+}
+
+void GlobalBodyPlanner::initializePlannerConfig() {
+    // Initialize PRM_Graph now that planner_config_ is available
+    PRM_Graph = PRM_PlannerClass(planner_config_);
 }
 
 void GlobalBodyPlanner::terrainMapCallback(
