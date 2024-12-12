@@ -338,6 +338,138 @@ bool GlobalBodyPlanner::callPlanner() {
   return true;
 }
 
+bool GlobalBodyPlanner::callPlanner2() {
+  if (!replanning_allowed_ && !publish_after_reset_delay_) {
+    newest_plan_.setComputedTimestamp(ros::Time::now());
+    return false;
+  }
+
+  newest_plan_ = current_plan_;
+
+  // Clear out old statistics
+  solve_time_info_.clear();
+  vertices_generated_info_.clear();
+  cost_vector_.clear();
+  cost_vector_times_.clear();
+
+  // Copy start and goal states and adjust for ground height
+  State start_state = fullStateToState(start_state_);
+  State goal_state = fullStateToState(goal_state_);
+
+  // Initialize statistics variables
+  double plan_time, path_length, path_duration, total_solve_time,
+      total_vertices_generated, total_path_length, total_path_duration,
+      dist_to_goal;
+  int vertices_generated;
+
+  // Construct RRT object
+  GBPL gbpl;
+
+  // Loop through num_calls_ planner calls
+  for (int i = 0; i < num_calls_; ++i) {
+    // Exit if ros is down
+    if (!ros::ok()) {
+      return false;
+    }
+
+    // Clear out previous solutions and initialize new statistics variables
+    std::vector<State> state_sequence;
+    std::vector<Action> action_sequence;
+
+    // Call the planner method
+    int plan_status = gbpl.findPlan3(planner_config_, PRM_Graph, start_state, goal_state,
+                                    state_sequence, action_sequence, tree_pub_);
+    newest_plan_.setComputedTimestamp(ros::Time::now());
+
+    if (plan_status != VALID && plan_status != VALID_PARTIAL) {
+      if (plan_status == INVALID_START_STATE) {
+        ROS_WARN_THROTTLE(1, "Invalid start state, exiting");
+      } else if (plan_status == INVALID_GOAL_STATE) {
+        ROS_WARN_THROTTLE(1, "Invalid goal state, exiting");
+      } else if (plan_status == INVALID_START_GOAL_EQUAL) {
+        ROS_WARN_THROTTLE(1, "Start is sufficiently close to goal, exiting");
+      } else if (plan_status == UNSOLVED) {
+        ROS_WARN_THROTTLE(1,
+                          "Planner was unable to make any progress, start "
+                          "state likely trapped");
+      }
+      return false;
+    }
+    gbpl.getStatistics(plan_time, vertices_generated, path_length,
+                       path_duration, dist_to_goal);
+
+    // Add the existing path length to the new
+    path_length += current_plan_.getLengthAtIndex(start_index_);
+
+    // Handle the statistical data
+    cost_vector_.push_back(path_length);
+    cost_vector_times_.push_back(plan_time);
+
+    total_solve_time += plan_time;
+    total_vertices_generated += vertices_generated;
+    total_path_length += path_length;
+    total_path_duration += path_duration;
+
+    solve_time_info_.push_back(plan_time);
+    vertices_generated_info_.push_back(vertices_generated);
+
+    newest_plan_.eraseAfterIndex(start_index_);
+    newest_plan_.loadPlanData(plan_status, start_state_, dist_to_goal,
+                              state_sequence, action_sequence, dt_,
+                              replan_start_time_, planner_config_);
+
+    // Check if this plan is better:
+    // 1) If valid and shorter or previous plan not valid OR
+    // 2) If partially valid and closer to the goal OR
+    // 3) If goal has moved
+    double eps = 1.99;  // Require significant improvement
+    bool is_updated = false;
+    if ((plan_status == VALID) &&
+        ((newest_plan_.getLength() / eps) < current_plan_.getLength() ||
+         current_plan_.getStatus() != VALID)) {
+      ROS_INFO("valid and shorter or previous plan not valid");
+      is_updated = true;
+
+    } else if ((plan_status == VALID_PARTIAL) &&
+               (current_plan_.getStatus() == UNSOLVED ||
+                (poseDistance(state_sequence.back(), goal_state) <
+                 current_plan_.getGoalDistance()))) {
+      ROS_INFO("partially valid and closer to the goal");
+      is_updated = true;
+    }
+    ROS_INFO("-------------------------------is_updated: %d", is_updated);
+    if (is_updated) {
+      state_sequence_ = state_sequence;
+      action_sequence_ = action_sequence;
+
+      std::cout << "Solve time: " << plan_time << " s" << std::endl;
+      std::cout << "Vertices generated: " << vertices_generated << std::endl;
+      std::cout << "Path length: " << path_length << " m" << std::endl;
+      std::cout << "Path duration: " << path_duration << " s" << std::endl;
+      std::cout << std::endl;
+
+      current_plan_ = newest_plan_;
+    }
+
+    return is_updated;
+  }
+
+  // Report averaged statistics if num_calls_ > 1
+  if (num_calls_ > 1) {
+    std::cout << "Average vertices generated: "
+              << total_vertices_generated / num_calls_ << std::endl;
+    std::cout << "Average solve time: " << total_solve_time / num_calls_ << " s"
+              << std::endl;
+    std::cout << "Average path length: " << total_path_length / num_calls_
+              << " s" << std::endl;
+    std::cout << "Average path duration: " << total_path_duration / num_calls_
+              << " s" << std::endl;
+    std::cout << std::endl;
+  }
+
+  return true;
+}
+
 void GlobalBodyPlanner::waitForData() {
   // Spin until terrain map message has been received and processed
   boost::shared_ptr<grid_map_msgs::GridMap const> shared_map;
@@ -439,7 +571,7 @@ void GlobalBodyPlanner::spin() {
     // Call the planner
     ROS_INFO("----------In SPIN Calling planner");
     ROS_INFO("planner status: %d", planner_status_);
-    callPlanner();
+    callPlanner2();
 
     // Publish the results if valid
     publishCurrentPlan();

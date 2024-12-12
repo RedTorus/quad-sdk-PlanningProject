@@ -48,6 +48,7 @@ class GlobalBodyPlanner {
    */
   bool callPlanner();
 
+  bool callPlanner2();
   /**
    * @brief Primary work function in class, called in node file for this
    * component

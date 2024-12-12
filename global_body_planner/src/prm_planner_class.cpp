@@ -5,6 +5,10 @@ PRM_PlannerClass::PRM_PlannerClass(const PlannerConfig &planner_config, int dire
     // Initialize any additional attributes if necessary
 }
 
+bool PRM_PlannerClass::isVerticesEmpty() const {
+    return vertices.empty();
+}
+
 std::vector<State> PRM_PlannerClass::retrieveStateSequence(const std::vector<int>& path) {
     std::vector<State> state_sequence;
     for (int index : path) {

@@ -27,7 +27,7 @@ public:
     //using GraphClass::edges;
     //using GraphClass::successors;
     //using GraphClass::g_values;
-
+    bool isVerticesEmpty() const;
     // Other methods specific to PRM_PlannerClass can be added here
     std::vector<State> retrieveStateSequence(const std::vector<int>& path);
 

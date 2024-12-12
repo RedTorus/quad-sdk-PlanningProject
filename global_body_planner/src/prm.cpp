@@ -67,6 +67,61 @@ void PRM::buildRoadmap(PRM_PlannerClass &G, const PlannerConfig &planner_config,
     ROS_INFO("Number of nodes in PRM: %d", G.getNumVertices());
 }
 
+void PRM::buildRoadmap2(PRM_PlannerClass &G, const PlannerConfig &planner_config, const int &start, const int &goal, const int &num_samples, const double &epsilon)
+{   
+    auto start_time = std::chrono::steady_clock::now(); // Start timing
+    StateActionResult result;
+    bool check=false;
+    State goalS = G.getVertex(goal);
+    G.updateGValue(goal, std::numeric_limits<double>::max()-30);
+    G.updateGValue(start, 0);
+    for (int i = 0; i < num_samples; ++i)
+    {
+        State random_state = samplePoint(G, planner_config);
+
+        if ((!isValidState2(random_state, planner_config, LEAP_STANCE, check)) || (IsInGraph(random_state, G, planner_config)))
+        {
+            continue;
+        }
+        int s_new_index = G.getNumVertices();
+        G.addVertex(s_new_index, random_state);
+        updateDistHeuristic(G, planner_config, random_state, s_new_index, goalS);
+        G.updateGValue(s_new_index, std::numeric_limits<double>::max()-30);
+        std::vector<int> neighbors = G.neighborhoodDist(random_state, epsilon); // ToDo put dist in PlannerConfig
+        if (neighbors.empty())
+        {
+            continue;
+        }
+
+        if (i%1000 == 0)
+        {
+            ROS_INFO("Sampled %d states", i);
+        }	
+
+        for (int neighbor : neighbors)
+        {
+            State neighbor_state = G.getVertex(neighbor);
+            if (calculateDirectAction(neighbor_state, random_state, result, planner_config, check))
+            {
+                G.addEdge(s_new_index, neighbor, 0.0); // do not want edge cost for now edge len result.distance
+                G.actions[{neighbor, s_new_index}] = result.a_new;
+                // G.actions[{s_new_index, neighbor}] = flipDirection(a)
+            }
+
+            if (calculateDirectAction(random_state, neighbor_state, result, planner_config, check))
+            {
+                G.addEdge(neighbor, s_new_index, 0.0);
+                G.actions[{s_new_index, neighbor}] = result.a_new;
+                // G.actions[{neighbor, s_new_index}] = flipDirection(a)
+            }
+        }
+    }
+    auto end_time = std::chrono::steady_clock::now(); // End timing
+    std::chrono::duration<double> elapsed_seconds = end_time - start_time;
+    ROS_INFO("BuildRoadmap completed in %f seconds", elapsed_seconds.count());
+    ROS_INFO("Number of nodes in PRM: %d", G.getNumVertices());
+}
+
 bool PRM::GetAction(State start, State s, StateActionResult &result, const PlannerConfig &planner_config, bool &check)
 {
     // Implement validity checking logic
@@ -219,7 +274,7 @@ std::vector<int> PRM::GetNeighbors(PRM_PlannerClass &G, const State &state, cons
     return G.neighborhoodDist(state, epsilon); 
 }
 
-std::vector<int> PRM::Astar(PRM_PlannerClass &G, const double &epsilon, const PlannerConfig &planner_config) {
+std::vector<int> PRM::Astar(PRM_PlannerClass &G, const int &start, const int &goal, const double &epsilon, const PlannerConfig &planner_config) {
     auto start_time = std::chrono::steady_clock::now();
     std::vector<int> path;
     auto compare = [&G](int lhs, int rhs) {
@@ -229,7 +284,7 @@ std::vector<int> PRM::Astar(PRM_PlannerClass &G, const double &epsilon, const Pl
     std::unordered_set<int> open_set;
     std::unordered_set<int> closed;
     bool check=true;
-    int start = 0;
+    //int start = 0;
     G.g_values[start] = 0;
     open.push(start);
     open_set.insert(start);
@@ -241,7 +296,7 @@ std::vector<int> PRM::Astar(PRM_PlannerClass &G, const double &epsilon, const Pl
         open_set.erase(current);
         closed.insert(current);
 
-        if(current == 1){
+        if(current == goal){
             ROS_INFO("--------Goal reached");
             break;
         }
@@ -253,7 +308,7 @@ std::vector<int> PRM::Astar(PRM_PlannerClass &G, const double &epsilon, const Pl
             if (it != G.actions.end()) {
                 continue;
             } */
-            if( neighbor == 1){
+            if( neighbor == goal){
                 //ROS_INFO("--------Goal found");
                 //break;
             }
@@ -273,7 +328,7 @@ std::vector<int> PRM::Astar(PRM_PlannerClass &G, const double &epsilon, const Pl
 
         }
     }
-    if (current != 1){
+    if (current != goal){
         ROS_ERROR("Goal not found");
         throw std::runtime_error("Goal not found");
     }
@@ -294,7 +349,7 @@ std::vector<int> PRM::Astar(PRM_PlannerClass &G, const double &epsilon, const Pl
 
 }
 
-std::vector<int> PRM::WAstar(PRM_PlannerClass &G, const double &epsilon, const double &w, const PlannerConfig &planner_config) {
+std::vector<int> PRM::WAstar(PRM_PlannerClass &G, const int &start, const int &goal, const double &epsilon, const double &w, const PlannerConfig &planner_config) {
     auto start_time = std::chrono::steady_clock::now();
     std::vector<int> path;
     auto compare = [&G, w](int lhs, int rhs) {
@@ -304,7 +359,7 @@ std::vector<int> PRM::WAstar(PRM_PlannerClass &G, const double &epsilon, const d
     std::unordered_set<int> open_set;
     std::unordered_set<int> closed;
     bool check=true;
-    int start = 0;
+    //int start = 0;
     G.g_values[start] = 0;
     open.push(start);
     open_set.insert(start);
@@ -316,7 +371,7 @@ std::vector<int> PRM::WAstar(PRM_PlannerClass &G, const double &epsilon, const d
         open_set.erase(current);
         closed.insert(current);
 
-        if(current == 1){
+        if(current == goal){
             ROS_INFO("--------Goal reached");
             break;
         }
@@ -328,7 +383,7 @@ std::vector<int> PRM::WAstar(PRM_PlannerClass &G, const double &epsilon, const d
             if (it != G.actions.end()) {
                 continue;
             } */
-            if( neighbor == 1){
+            if( neighbor == goal){
                 //ROS_INFO("--------Goal found");
                 //break;
             }
@@ -348,7 +403,7 @@ std::vector<int> PRM::WAstar(PRM_PlannerClass &G, const double &epsilon, const d
 
         }
     }
-    if (current != 1){
+    if (current != goal){
         ROS_ERROR("Goal not found");
         throw std::runtime_error("Goal not found");
     }
@@ -377,6 +432,11 @@ bool PRM::checkConnection(PRM_PlannerClass &G, int& s, int& neighbor) {
     return is_s_parent && is_neighbor_child && is_action_there;
 }
 
+void PRM::reset_gValues(PRM_PlannerClass &G) {
+    for (int i = 0; i < G.getNumVertices(); i++) {
+        G.g_values[i] = std::numeric_limits<double>::max()-30;
+    }
+}
 
 
 

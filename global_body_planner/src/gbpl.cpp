@@ -407,11 +407,11 @@ int GBPL::findPlan2(const PlannerConfig &planner_config, State s_start,
   
   PRM_PlannerClass G(planner_config);
   G.addVertex(0, s_start);
-  G.addVertex(1, s_goal);
+  G.addVertex(1, s_goal); 
   PRM prm;
-  prm.buildRoadmap(G, planner_config, 20000, 0.65);
+  prm.buildRoadmap2(G, planner_config, 0, 1, 20000, 0.65);
   ROS_INFO("------------Built roadmap");
-  std::vector<int> path = prm.WAstar(G, 0.65, 2.0, planner_config);
+  std::vector<int> path = prm.WAstar(G, 0, 1, 0.65, 2.0, planner_config);
   if(path.size() == 0){
     ROS_WARN("------------Astar failed");
     return UNSOLVED;
@@ -439,4 +439,88 @@ int GBPL::findPlan2(const PlannerConfig &planner_config, State s_start,
   ROS_INFO("PRM planning completed successfully.");
   return VALID;
 }
+
+int GBPL::findPlan3(const PlannerConfig &planner_config, PRM_PlannerClass &G, State s_start,
+                   State s_goal, std::vector<State> &state_sequence,
+                   std::vector<Action> &action_sequence,
+                   ros::Publisher &tree_pub){
+  
+  // Perform validity checking on start and goal states
+  if (!isValidState2(s_start, planner_config, LEAP_STANCE, true)) {
+    return INVALID_START_STATE;}  
+
+  // Set goal height to nominal distance above terrain
+  s_goal.pos[2] =
+      getTerrainZFromState(s_goal, planner_config) + planner_config.h_nom;
+  if (!isValidState2(s_goal, planner_config, LEAP_STANCE, true)) {
+    return INVALID_GOAL_STATE;
+  }
+  if (poseDistance(s_start, s_goal) <= 1e-1) {
+    return INVALID_START_GOAL_EQUAL;
+  }
+  PRM prm;
+  int start_index;
+  int goal_index;
+  if (G.isVerticesEmpty()){
+    G = PRM_PlannerClass(planner_config);
+    G.addVertex(0, s_start);
+    start_index = 0;
+    G.addVertex(1, s_goal); 
+    goal_index = 1;
+    prm.buildRoadmap2(G, planner_config, start_index, goal_index, 22000, 0.85);
+    ROS_INFO("------------Built roadmap 1st time");
+  }
+
+  else{
+    if (prm.IsInGraph(s_start, G, planner_config)){
+      start_index = G.getNearestNeighbor(s_start);
+    }
+    else{
+      start_index = G.getNumVertices();
+      G.addVertex(start_index, s_start);
+    }
+  }
+
+  /* if (prm.IsInGraph(s_goal, G, planner_config)){
+      goal_index = G.getNearestNeighbor(s_goal);
+  } else{
+      goal_index = G.getNumVertices();
+      G.addVertex(goal_index, s_goal);
+  } */
+
+  goal_index = 1;
+  /* ROS_INFO("start state index: %d", start_index);
+  ROS_INFO("start state position: %f, %f, %f", G.getVertex(start_index).pos[0], G.getVertex(start_index).pos[1], G.getVertex(start_index).pos[2]);
+  ROS_INFO("------------Calling Astar"); */
+  prm.reset_gValues(G);
+  std::vector<int> path = prm.WAstar(G, start_index, goal_index, 0.85, 1.7, planner_config);
+  if(path.size() == 0){
+    ROS_WARN("------------Astar failed");
+    return UNSOLVED;
+  }
+
+  ROS_INFO("------------Astar successfully completed");
+  ROS_INFO("------------Path size: %ld", path.size());
+  state_sequence = G.retrieveStateSequence(path);
+  action_sequence = G.retrieveActionSequence(path);
+  ROS_INFO("------------Retrieved state and action sequences");
+  bool check = true;
+
+  postProcessPath2(state_sequence, action_sequence, planner_config, check);
+  
+  path_length_ = 0.0;
+  path_duration_ = 0.0;
+  for (Action a : action_sequence) {
+      path_length_ += a.t_s_leap + a.t_f + a.t_s_land;
+      path_duration_ += (a.t_s_leap + a.t_f + a.t_s_land);
+  }
+  dist_to_goal_ = poseDistance(s_goal, state_sequence.back());
+
+  
+  ROS_INFO("Final path duration: %f", path_duration_);
+
+  ROS_INFO("PRM planning completed successfully.");
+  return VALID;
+}
+
 

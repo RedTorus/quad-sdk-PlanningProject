@@ -2,6 +2,7 @@
 #define GBPL_H
 
 #include "global_body_planner/rrt.h"
+#include "global_body_planner/prm_planner_class.h"
 
 #define TRAPPED 0
 #define ADVANCED 1
@@ -104,6 +105,12 @@ class GBPL : public RRT {
                    State s_goal, std::vector<State> &state_sequence,
                    std::vector<Action> &action_sequence,
                    ros::Publisher &tree_pub);
+
+  int findPlan3(const PlannerConfig &planner_config, PRM_PlannerClass &G, State s_start,
+                   State s_goal, std::vector<State> &state_sequence,
+                   std::vector<Action> &action_sequence,
+                   ros::Publisher &tree_pub);
+
  protected:
   /// Time horizon (in seconds) the planner is allowed to search until restarted
   double anytime_horizon;
