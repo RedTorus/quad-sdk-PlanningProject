@@ -478,10 +478,10 @@ bool PRM::checkTrajectoryCollsion(PRM_PlannerClass &G, const std::vector<State> 
     bool check = true;
     for (int i = 0; i < state_sequence.size() - 1; i++) {
         if (!isValidState2(state_sequence[i], planner_config, LEAP_STANCE, check)) {
-            /* if (IsInGraph(state_sequence[i], G, planner_config)) {
+            if (IsInGraph(state_sequence[i], G, planner_config)) {
                 int s = G.getNearestNeighbor(state_sequence[i]);
                 G.h_dist[s] = std::numeric_limits<double>::infinity();
-                } */
+                }
             return false;
         }
         StateActionResult result;

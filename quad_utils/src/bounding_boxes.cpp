@@ -8,7 +8,7 @@ BoundingBoxes::BoundingBoxes(ros::NodeHandle& nh, const std::string& yaml_file)
     updateBoundingBoxes();
 }
 
-void BoundingBoxes::updateBoundingBoxes() {
+void BoundingBoxes::updateBoundingBoxes(){
     for (const auto& link_size : link_sizes_) {
         gazebo_msgs::GetLinkState link_state_srv;
         link_state_srv.request.link_name = link_size.link_name;
@@ -54,6 +54,7 @@ BoundingBox BoundingBoxes::computeSlidingWindowBoundingBox(const BoundingBox& bb
 }
 
 const std::unordered_map<std::string, BoundingBox>& BoundingBoxes::getBoundingBoxes() const {
+    //this->updateBoundingBoxes();
     return bounding_boxes_;
 }
 

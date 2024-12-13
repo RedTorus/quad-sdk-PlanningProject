@@ -373,6 +373,21 @@ bool GlobalBodyPlanner::callPlanner2() {
       return false;
     }
 
+    PRM prm;
+    bool current_collison = true;
+    std::vector<State> current_state_sequence;
+    for (const auto& full_state : current_plan_.getBodyPlan()) {
+        current_state_sequence.push_back(fullStateToState(full_state));
+    }
+    if(current_state_sequence.size()!=0){
+      current_collison = prm.checkTrajectoryCollsion(PRM_Graph, current_state_sequence, planner_config_);
+      ROS_INFO("-------------------------------current collison: %d", current_collison);
+    }
+    if(current_state_sequence.size() != 0 && !current_collison){
+      ROS_INFO("Not replanning, no collision");
+      return false;
+      
+    }
     // Clear out previous solutions and initialize new statistics variables
     std::vector<State> state_sequence;
     std::vector<Action> action_sequence;
@@ -422,33 +437,33 @@ bool GlobalBodyPlanner::callPlanner2() {
     
     bool is_updated = false;
 
-    PRM prm;
-    std::vector<State> current_state_sequence;
+    
+    /* std::vector<State> current_state_sequence; */
     std::vector<State> new_state_sequence;
 
     // Convert FullState to State
-    for (const auto& full_state : current_plan_.getBodyPlan()) {
+    /* for (const auto& full_state : current_plan_.getBodyPlan()) {
         current_state_sequence.push_back(fullStateToState(full_state));
-    }
+    } */
     for (const auto& full_state : newest_plan_.getBodyPlan()) {
         new_state_sequence.push_back(fullStateToState(full_state));
     }
     //ROS_INFO("-------------------------------current_state_sequence size: %d", current_state_sequence.size());
-    //ROS_INFO("-------------------------------new_state_sequence size: %d", new_state_sequence.size());
-    bool current_collison = true;
+    ROS_INFO("-------------------------------new_state_sequence size: %d", new_state_sequence.size());
+    //bool current_collison = true;
     bool new_collison = true;
     if (current_state_sequence.size() != 0 && new_state_sequence.size() != 0) {
-      current_collison = prm.checkTrajectoryCollsion(PRM_Graph, current_state_sequence, planner_config_);
+      //current_collison = !prm.checkTrajectoryCollsion(PRM_Graph, current_state_sequence, planner_config_);
       new_collison = prm.checkTrajectoryCollsion(PRM_Graph, new_state_sequence, planner_config_);
 
       ROS_INFO("-------------------------------current collison: %d", current_collison);
       ROS_INFO("-------------------------------new collison: %d", new_collison);
 
-      if (!current_collison) {
+      if (current_collison) {
         ROS_INFO("-------------------------------current plan set to new plan");
         is_updated = true;
       }
-      if (!current_collison && !new_collison) {
+      if (current_collison && new_collison) {
         ROS_WARN("Both plans have collision");
       }
     }
@@ -461,7 +476,7 @@ bool GlobalBodyPlanner::callPlanner2() {
     // 1) If valid and shorter or previous plan not valid OR
     // 2) If partially valid and closer to the goal OR
     // 3) If goal has moved
-    double eps = 0.996;  // Require significant improvement
+    double eps = 0.985;  // Require significant improvement
     if ((plan_status == VALID) &&
         ((newest_plan_.getLength() / eps) < current_plan_.getLength() ||
          current_plan_.getStatus() != VALID)) {
