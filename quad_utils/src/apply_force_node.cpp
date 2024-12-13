@@ -77,10 +77,10 @@ int main(int argc, char **argv) {
 
     std::string model_name = "box"; // Replace with the actual name of your block
     double velocity_x = 0.0; // Velocity in x direction
-    double velocity_y = 0.12; // Velocity in y direction
+    double velocity_y = 0.22; // Velocity in y direction
     double velocity_z = 0.0; // Velocity in z direction
     double duration_secs = 100.0; // Duration in seconds
-    double period_secs = 12; // Period in seconds
+    double period_secs = 9; // Period in seconds
     moveBlockContinuously(nh, model_name, velocity_x, velocity_y, velocity_z, duration_secs, period_secs);
 
     // ros::spinOnce();
